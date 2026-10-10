@@ -406,7 +406,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 9 — Ignition local deploy
 - [x] Step 10 — Deployment manifest sample
 - [x] Step 11 — Types re-export ABIs
-- [ ] Step 12 — Docker Mongo + env examples
+- [x] Step 12 — Docker Mongo + env examples
 - [ ] Step 13 — Local dev runbook
 - [ ] Step 14 — API config validation
 - [ ] Step 15 — Mongoose + health
