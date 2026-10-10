@@ -398,7 +398,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 1 — README paths and status
 - [x] Step 2 — Remove nested web pnpm files
 - [x] Step 3 — Turbo dev/compile tasks
-- [ ] Step 4 — On-chain aligned types
+- [x] Step 4 — On-chain aligned types
 - [ ] Step 5 — Metadata document types
 - [ ] Step 6 — API DTOs
 - [ ] Step 7 — Event payload types
