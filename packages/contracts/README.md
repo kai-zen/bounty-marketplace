@@ -17,15 +17,15 @@ Hardhat project containing the core Solidity smart contracts managing funds, sta
 
 ## ABI export
 
-`pnpm compile` compiles the contracts, then writes JSON ABIs to `packages/contracts/abis/`:
+`pnpm compile` compiles the contracts, then writes ABIs to `packages/contracts/abis/`:
 
-- `abis/BountyFactory.json`
-- `abis/BountyEscrow.json`
-- `abis/SubmissionRegistry.json`
+- `abis/BountyFactory.json` and `abis/BountyFactory.ts`
+- `abis/BountyEscrow.json` and `abis/BountyEscrow.ts`
+- `abis/SubmissionRegistry.json` and `abis/SubmissionRegistry.ts`
 
-`pnpm export-abis` does the same write. It compiles first when artifacts are missing or stale.
+The `.ts` files are `as const` ABIs for wagmi. `pnpm export-abis` does the same write. It compiles first when artifacts are missing or stale.
 
-**These ABI files are committed.** They are the interface the API and web app import, so a checkout can use them without Hardhat. When a contract interface changes, run `pnpm compile` from the repo root (or `pnpm --filter contracts export-abis`) and commit the updated JSON. Full compiler output under `artifacts/` (bytecode, build info, tests) stays gitignored.
+**These ABI files are committed.** They are the interface the API and web app import, so a checkout can use them without Hardhat. When a contract interface changes, run `pnpm compile` from the repo root (or `pnpm --filter contracts export-abis`) and commit the updated files. Full compiler output under `artifacts/` (bytecode, build info, tests) stays gitignored.
 
 ## Local deploy
 
@@ -56,6 +56,8 @@ Local Hardhat is `packages/contracts/deployments/31337.json`. The JSON shape is 
 | `deployedAt`   | UTC timestamp written by the deploy script       |
 
 These files hold addresses and a timestamp only. `31337.json` is the committed local sample. Another chain uses the same filename pattern, for example `11155111.json` for Sepolia.
+
+The web app imports the ABIs and these addresses from `@bounty/types/contracts`.
 
 ## Core Trust Principles
 
