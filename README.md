@@ -2,17 +2,21 @@
 
 A decentralized bounty marketplace where creators can fund tasks with ETH, and contributors can submit work to claim rewards. Built as a full-stack Web3 monorepo.
 
+## Current status
+
+Smart contracts in `packages/contracts` are complete. The API, indexer, and web UI are in progress.
+
 ## Architecture Overview
 
 The platform strictly separates on-chain trust/money logic from off-chain indexing/metadata.
 
 1. **Frontend (`apps/web`)**: Next.js app for browsing, creating, and managing bounties.
-2. **Backend (`app/api`)**: NestJS backend for metadata storage and blockchain event indexing.
+2. **Backend (`apps/api`)**: NestJS backend for metadata storage and blockchain event indexing.
 3. **Smart Contracts (`packages/contracts`)**: Hardhat project managing ETH escrow, submission proofs, and payouts.
 
 ## Monorepo Structure
 
-- `app/api`: NestJS + Mongoose (Indexer & API)
+- `apps/api`: NestJS + Mongoose (Indexer & API)
 - `apps/web`: Next.js + MUI + Viem + Wagmi (Frontend UI)
 - `packages/contracts`: Hardhat + Solidity (Smart Contracts)
 - `packages/types`: Shared TypeScript interfaces

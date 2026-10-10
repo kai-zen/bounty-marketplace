@@ -1,8 +1,6 @@
 # Implementation Plan
 
-Step-by-step build plan for the Web3 Bounty Marketplace monorepo. **Each step is exactly one git commit**—keep commits small and focused.
-
-**Commit message convention** (matches existing history):
+Step-by-step build plan for the Web3 Bounty Marketplace monorepo.
 
 ```text
 [scope]: short imperative description
@@ -16,7 +14,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 1
 
-**Commit:** `[docs]: fix monorepo paths and align root README with apps layout`
+`[docs]: fix monorepo paths and align root README with apps layout`
 
 - Fix `app/api` → `apps/api` in root `README.md`.
 - Add a brief “Current status” note: smart contracts complete; API, indexer, and web UI in progress.
@@ -24,7 +22,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 2
 
-**Commit:** `[chore]: remove nested web lockfile and pnpm-workspace`
+`[chore]: remove nested web lockfile and pnpm-workspace`
 
 - Remove `apps/web/pnpm-lock.yaml` and `apps/web/pnpm-workspace.yaml` if they are leftovers from `create-next-app`.
 - Ensure the web app is wired only through the root pnpm workspace.
@@ -32,7 +30,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 3
 
-**Commit:** `[chore]: extend turbo tasks for dev and contract compile`
+`[chore]: extend turbo tasks for dev and contract compile`
 
 - In `turbo.json`: ensure `dev` runs for `@bounty/api` and `@bounty/web`; add or wire `test` / `compile` for `contracts` if missing.
 - In root `package.json`: add helper scripts such as `dev:web`, `dev:api`, `test:contracts` via turbo filters.
@@ -44,7 +42,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 4
 
-**Commit:** `[types]: add on-chain aligned enums and status types`
+`[types]: add on-chain aligned enums and status types`
 
 - In `packages/types`: add `BountyStatus`, `SubmissionStatus`, address type (e.g. `` `0x${string}` ``), block/time fields as `number`.
 - Mirror Solidity enums with comments referencing `BountyEscrow` and `SubmissionRegistry`.
@@ -52,7 +50,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 5
 
-**Commit:** `[types]: add metadata document shapes for bounty and submission`
+`[types]: add metadata document shapes for bounty and submission`
 
 - Off-chain JSON types: `BountyMetadata`, `SubmissionMetadata` (title, description, tags, links; keep v1 minimal).
 - Include a `version` field for forward compatibility.
@@ -60,14 +58,14 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 6
 
-**Commit:** `[types]: add API list and detail DTOs`
+`[types]: add API list and detail DTOs`
 
 - Add `BountySummary`, `BountyDetail`, `SubmissionSummary`, `ActivityEvent`, `PageParams`, `PageResult<T>`.
 - **Verify:** Shapes match indexer output and planned Explore / Detail / Dashboard pages.
 
 ### Step 7
 
-**Commit:** `[types]: export contract event payload types`
+`[types]: export contract event payload types`
 
 - Typed payloads for: `BountyCreated`, `WorkSubmitted`, `WinnerAwarded`, `RewardClaimed`, `BountyRefunded`, `SubmissionSelected`, fee config events.
 - **Verify:** Field names align with Solidity event definitions.
@@ -78,7 +76,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 8
 
-**Commit:** `[contracts]: add ABI export script to packages/contracts/abis`
+`[contracts]: add ABI export script to packages/contracts/abis`
 
 - Add a script (post-`compile` or `pnpm export-abis`) that writes JSON ABIs for Factory, Escrow, and Registry.
 - Document the output path in `packages/contracts/README.md`.
@@ -86,7 +84,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 9
 
-**Commit:** `[contracts]: add Hardhat Ignition deploy module for local chain`
+`[contracts]: add Hardhat Ignition deploy module for local chain`
 
 - Ignition module: deploy `SubmissionRegistry`, then `BountyFactory` (registry, fee recipient, platform fee bps).
 - Use dev accounts / env for fee recipient on local networks.
@@ -94,7 +92,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 10
 
-**Commit:** `[contracts]: add deployment manifest schema and local sample`
+`[contracts]: add deployment manifest schema and local sample`
 
 - Define JSON shape: `{ chainId, factory, registry, deployedAt }` (and any other shared addresses).
 - Commit a sample `deployments/31337.json` from a local deploy (no secrets).
@@ -102,7 +100,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 11
 
-**Commit:** `[types]: re-export contract ABIs and address types for apps`
+`[types]: re-export contract ABIs and address types for apps`
 
 - Thin module (e.g. `packages/types/contracts.ts`) importing ABIs + deployment manifest type.
 - **Verify:** Single import site for wagmi `abi` + addresses in the web app.
@@ -113,7 +111,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 12
 
-**Commit:** `[chore]: add docker-compose for MongoDB and env examples`
+`[chore]: add docker-compose for MongoDB and env examples`
 
 - `docker-compose.yml`: MongoDB 7, port 27017, named volume.
 - `apps/api/.env.example`: `MONGODB_URI`, `PORT`, `RPC_URL`, `CHAIN_ID`, contract addresses, `INDEXER_START_BLOCK`.
@@ -122,7 +120,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 13
 
-**Commit:** `[docs]: add local development runbook to root README`
+`[docs]: add local development runbook to root README`
 
 - Document ordered startup: Mongo → deploy contracts → copy env → `pnpm dev`.
 - Link to this file (`docs/IMPLEMENTATION_PLAN.md`) for the full roadmap.
@@ -134,7 +132,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 14
 
-**Commit:** `[api]: add ConfigModule and validated environment`
+`[api]: add ConfigModule and validated environment`
 
 - Add `@nestjs/config` and env validation (Joi, Zod, or class-validator—match Nest patterns in the repo).
 - Fail fast on boot when Mongo, RPC, or contract addresses are missing.
@@ -142,7 +140,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 15
 
-**Commit:** `[api]: connect Mongoose and health module`
+`[api]: connect Mongoose and health module`
 
 - `MongooseModule.forRoot`; `GET /health` with Mongo connectivity check.
 - Replace or remove default hello-world-only surface in favor of health.
@@ -150,7 +148,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 16
 
-**Commit:** `[api]: register global API prefix and CORS for web`
+`[api]: register global API prefix and CORS for web`
 
 - Global prefix e.g. `/api/v1`; CORS for `http://localhost:3000` (and dev web port if different).
 - **Verify:** Browser can call health from the Next.js origin.
@@ -161,7 +159,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 17
 
-**Commit:** `[api]: add MetadataModule schema and POST endpoints`
+`[api]: add MetadataModule schema and POST endpoints`
 
 - Mongoose `Metadata` collection: `id`, `kind` (`bounty` | `submission`), `payload`, `createdAt`.
 - `POST /metadata/bounties`, `POST /metadata/submissions`: validate against `@bounty/types`, persist JSON, return a **URI** string (document the scheme, e.g. `https://api.../metadata/:id` or internal id—contracts require non-empty string only).
@@ -169,7 +167,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 18
 
-**Commit:** `[api]: add GET metadata by id`
+`[api]: add GET metadata by id`
 
 - `GET /metadata/:id` returns stored JSON (public read).
 - **Verify:** URI returned from POST is fetchable and matches payload used in a manual `createBounty` test.
@@ -180,14 +178,14 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 19
 
-**Commit:** `[api]: add BlockchainModule with viem public client`
+`[api]: add BlockchainModule with viem public client`
 
 - RPC and `CHAIN_ID` from env; Factory and Registry addresses from env.
 - **Verify:** Module can read `getBlockNumber()` on startup (log or health sub-check).
 
 ### Step 20
 
-**Commit:** `[api]: add Bounty and Submission Mongoose schemas`
+`[api]: add Bounty and Submission Mongoose schemas`
 
 - **Bounty:** escrow address (unique), creator, reward, deadline, metadataURI, status, winner, winningSubmissionId, tx metadata, block numbers.
 - **Submission:** submissionId, bountyAddress, submitter, submissionURI, status.
@@ -195,7 +193,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 21
 
-**Commit:** `[api]: add IndexerModule skeleton and cursor persistence`
+`[api]: add IndexerModule skeleton and cursor persistence`
 
 - `IndexerState` collection: `lastProcessedBlock`.
 - On module init: load cursor; polling or subscription wiring without full handlers yet.
@@ -203,7 +201,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 22
 
-**Commit:** `[api]: index BountyCreated and WorkSubmitted events`
+`[api]: index BountyCreated and WorkSubmitted events`
 
 - Factory `BountyCreated` → upsert `Bounty`.
 - Registry `WorkSubmitted` → upsert `Submission`.
@@ -212,7 +210,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 23
 
-**Commit:** `[api]: index award claim refund and submission selected events`
+`[api]: index award claim refund and submission selected events`
 
 - Escrow: `WinnerAwarded`, `RewardClaimed`, `BountyRefunded`.
 - Registry: `SubmissionSelected` → update submission status.
@@ -225,7 +223,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 24
 
-**Commit:** `[api]: add BountiesModule list and detail endpoints`
+`[api]: add BountiesModule list and detail endpoints`
 
 - `GET /bounties` (pagination, optional status filter).
 - `GET /bounties/:escrowAddress`.
@@ -233,7 +231,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 25
 
-**Commit:** `[api]: add SubmissionsModule endpoints`
+`[api]: add SubmissionsModule endpoints`
 
 - `GET /bounties/:escrowAddress/submissions`.
 - `GET /submissions?submitter=0x...` for dashboard.
@@ -241,7 +239,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 26
 
-**Commit:** `[api]: add ActivityModule append-only timeline`
+`[api]: add ActivityModule append-only timeline`
 
 - On index writes, append `ActivityEvent` (type, bounty, actor, txHash, timestamp).
 - `GET /activity?bounty=` and `GET /activity` with limit.
@@ -249,7 +247,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 27
 
-**Commit:** `[api]: denormalize bounty title from metadata on index`
+`[api]: denormalize bounty title from metadata on index`
 
 - When handling `BountyCreated`, resolve metadata URI and store `title` (and optional search fields) on `Bounty`.
 - **Verify:** `GET /bounties?search=` works without N+1 metadata fetches.
@@ -260,21 +258,21 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 28
 
-**Commit:** `[ui]: add MUI theme and AppThemeProvider`
+`[ui]: add MUI theme and AppThemeProvider`
 
 - Export `AppThemeProvider`, baseline theme, `CssBaseline`.
 - **Verify:** Provider can wrap the web app layout.
 
 ### Step 29
 
-**Commit:** `[ui]: add AppShell PageHeader and StatusChip`
+`[ui]: add AppShell PageHeader and StatusChip`
 
 - Layout chrome; status chip mapped from `@bounty/types` enums.
 - **Verify:** Renders with mock props.
 
 ### Step 30
 
-**Commit:** `[ui]: add BountyCard and EmptyState`
+`[ui]: add BountyCard and EmptyState`
 
 - Card: title, reward display, deadline, status.
 - **Verify:** Ready for Explore page consumption.
@@ -285,7 +283,7 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 31
 
-**Commit:** `[web]: add wagmi viem config and providers`
+`[web]: add wagmi viem config and providers`
 
 - `WagmiProvider`, TanStack `QueryClientProvider`; local Hardhat chain + optional Sepolia from env.
 - Connect wallet control (web or `@bounty/ui`—pick one location).
@@ -293,14 +291,14 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 32
 
-**Commit:** `[web]: wire AppThemeProvider and AppShell in root layout`
+`[web]: wire AppThemeProvider and AppShell in root layout`
 
 - Update site metadata (title, description) for the marketplace.
 - **Verify:** All routes share shell and theme.
 
 ### Step 33
 
-**Commit:** `[web]: add API client helper and env validation`
+`[web]: add API client helper and env validation`
 
 - Typed helpers: `fetchBounties`, `fetchBounty`, `postBountyMetadata`, etc., using `@bounty/types`.
 - **Verify:** Client calls `/health` and `/bounties`.
@@ -311,42 +309,42 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 34
 
-**Commit:** `[web]: implement Explore page at root`
+`[web]: implement Explore page at root`
 
 - Fetch bounty list from API; loading and error states; `BountyCard` grid; links to `/bounty/[address]`.
 - **Verify:** Indexed bounties appear on `/`.
 
 ### Step 35
 
-**Commit:** `[web]: implement Create Bounty page at /create`
+`[web]: implement Create Bounty page at /create`
 
 - Form → POST metadata → `factory.createBounty{value}` with returned URI.
 - **Verify:** New bounty shows on Explore after indexer sync (poll or refetch).
 
 ### Step 36
 
-**Commit:** `[web]: implement Bounty detail read-only at /bounty/[address]`
+`[web]: implement Bounty detail read-only at /bounty/[address]`
 
 - Metadata, reward, deadline, status, submissions, activity timeline.
 - **Verify:** Matches on-chain state and API for one escrow.
 
 ### Step 37
 
-**Commit:** `[web]: add submit work flow on bounty detail`
+`[web]: add submit work flow on bounty detail`
 
 - POST submission metadata → `registry.submitWork(bounty, uri)`.
 - **Verify:** Submission appears in list after index.
 
 ### Step 38
 
-**Commit:** `[web]: add creator award and winner claim actions`
+`[web]: add creator award and winner claim actions`
 
 - Creator: `awardWinner`; winner: `claimReward`; disable actions by role and status.
 - **Verify:** Happy path through claim on local chain.
 
 ### Step 39
 
-**Commit:** `[web]: add creator refund and Dashboard at /dashboard`
+`[web]: add creator refund and Dashboard at /dashboard`
 
 - Refund when expired and status Open.
 - Dashboard: created bounties, submissions, claimable awards for connected wallet.
@@ -358,14 +356,14 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 40
 
-**Commit:** `[api]: add e2e test for metadata and bounties list`
+`[api]: add e2e test for metadata and bounties list`
 
 - Supertest: POST metadata; GET bounties (empty then seeded).
 - **Verify:** `pnpm --filter @bounty/api test:e2e` passes.
 
 ### Step 41
 
-**Commit:** `[ci]: add GitHub Actions for contracts test and api web build`
+`[ci]: add GitHub Actions for contracts test and api web build`
 
 - Job: install, `pnpm --filter contracts test`.
 - Job: build `@bounty/api` and `@bounty/web`.
@@ -375,12 +373,12 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ## Optional follow-ups (one commit each)
 
-| Step | Commit |
-|------|--------|
-| 42 | `[contracts]: document Sepolia Ignition deploy without secrets in repo` |
-| 43 | `[api]: optional IPFS or pin helper for metadata URIs` |
-| 44 | `[web]: search and filter UX on Explore` |
-| 45 | `[api]: indexer reorg safety with block confirmations` |
+| Step | Commit                                                                  |
+| ---- | ----------------------------------------------------------------------- |
+| 42   | `[contracts]: document Sepolia Ignition deploy without secrets in repo` |
+| 43   | `[api]: optional IPFS or pin helper for metadata URIs`                  |
+| 44   | `[web]: search and filter UX on Explore`                                |
+| 45   | `[api]: indexer reorg safety with block confirmations`                  |
 
 ---
 
@@ -397,9 +395,9 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 Use this checklist when committing; mark `[x]` as you go.
 
-- [ ] Step 1 — README paths and status
-- [ ] Step 2 — Remove nested web pnpm files
-- [ ] Step 3 — Turbo dev/compile tasks
+- [x] Step 1 — README paths and status
+- [x] Step 2 — Remove nested web pnpm files
+- [x] Step 3 — Turbo dev/compile tasks
 - [ ] Step 4 — On-chain aligned types
 - [ ] Step 5 — Metadata document types
 - [ ] Step 6 — API DTOs
