@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "deployment-manifest",
+  "title": "DeploymentManifest",
+  "description": "Contract addresses for one chain. Path: packages/contracts/deployments/<chainId>.json. Addresses and a timestamp only; no keys or RPC URLs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["chainId", "factory", "registry", "feeRecipient", "deployedAt"],
+  "properties": {
+    "chainId": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "EVM chain id. Local Hardhat is 31337."
+    },
+    "factory": {
+      "description": "BountyFactory address.",
+      "$ref": "#/$defs/address"
+    },
+    "registry": {
+      "description": "SubmissionRegistry address.",
+      "$ref": "#/$defs/address"
+    },
+    "feeRecipient": {
+      "description": "Platform fee recipient configured on the factory.",
+      "$ref": "#/$defs/address"
+    },
+    "deployedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC time this manifest was written, from Date.toISOString()."
+    }
+  },
+  "$defs": {
+    "address": {
+      "type": "string",
+      "pattern": "^0x[a-fA-F0-9]{40}$"
+    }
+  }
+}

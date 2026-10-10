@@ -35,7 +35,27 @@ Hardhat project containing the core Solidity smart contracts managing funds, sta
 pnpm --filter contracts deploy:local
 ```
 
-The command targets the `hardhatMainnet` simulated network. The fee recipient is `FEE_RECIPIENT` when that env var is set, and Hardhat account #1 otherwise (account #0 deploys and owns the factory). The platform fee defaults to 250 bps. Both values are Ignition parameters (`feeRecipient`, `platformFeeBps`), so a parameters file overrides those defaults.
+The command targets the `hardhatMainnet` simulated network and writes `packages/contracts/deployments/<chainId>.json`. The fee recipient is `FEE_RECIPIENT` when that env var is set, and Hardhat account #1 otherwise (account #0 deploys and owns the factory). The platform fee defaults to 250 bps. Both values are Ignition parameters (`feeRecipient`, `platformFeeBps`), so a parameters file overrides those defaults.
+
+## Deployment manifests
+
+Web and API load addresses from one file per chain, relative to the repo root:
+
+```text
+packages/contracts/deployments/<chainId>.json
+```
+
+Local Hardhat is `packages/contracts/deployments/31337.json`. The JSON shape is `packages/contracts/deployments/schema.json`:
+
+| Field          | Meaning                                          |
+| -------------- | ------------------------------------------------ |
+| `chainId`      | EVM chain id                                     |
+| `factory`      | `BountyFactory` address                          |
+| `registry`     | `SubmissionRegistry` address                     |
+| `feeRecipient` | Platform fee recipient configured on the factory |
+| `deployedAt`   | UTC timestamp written by the deploy script       |
+
+These files hold addresses and a timestamp only. `31337.json` is the committed local sample. Another chain uses the same filename pattern, for example `11155111.json` for Sepolia.
 
 ## Core Trust Principles
 

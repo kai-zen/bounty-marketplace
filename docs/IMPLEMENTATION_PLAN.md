@@ -404,7 +404,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 7 — Event payload types
 - [x] Step 8 — ABI export script
 - [x] Step 9 — Ignition local deploy
-- [ ] Step 10 — Deployment manifest sample
+- [x] Step 10 — Deployment manifest sample
 - [ ] Step 11 — Types re-export ABIs
 - [ ] Step 12 — Docker Mongo + env examples
 - [ ] Step 13 — Local dev runbook

@@ -1,0 +1,7 @@
+{
+  "chainId": 31337,
+  "factory": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+  "registry": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "feeRecipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "deployedAt": "2026-10-10T17:54:04.355Z"
+}
