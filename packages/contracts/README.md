@@ -15,6 +15,18 @@ Hardhat project containing the core Solidity smart contracts managing funds, sta
 - **SubmissionRegistry:**
   Stores lightweight on-chain proofs of submissions (linking a bounty address, a submitter address, and a metadata URI).
 
+## ABI export
+
+`pnpm compile` compiles the contracts, then writes JSON ABIs to `packages/contracts/abis/`:
+
+- `abis/BountyFactory.json`
+- `abis/BountyEscrow.json`
+- `abis/SubmissionRegistry.json`
+
+`pnpm export-abis` does the same write. It compiles first when artifacts are missing or stale.
+
+**These ABI files are committed.** They are the interface the API and web app import, so a checkout can use them without Hardhat. When a contract interface changes, run `pnpm compile` from the repo root (or `pnpm --filter contracts export-abis`) and commit the updated JSON. Full compiler output under `artifacts/` (bytecode, build info, tests) stays gitignored.
+
 ## Core Trust Principles
 
 - **Funds are non-custodial:** ETH is locked in individual Escrow contracts.

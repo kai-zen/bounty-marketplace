@@ -402,7 +402,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 5 — Metadata document types
 - [x] Step 6 — API DTOs
 - [x] Step 7 — Event payload types
-- [ ] Step 8 — ABI export script
+- [x] Step 8 — ABI export script
 - [ ] Step 9 — Ignition local deploy
 - [ ] Step 10 — Deployment manifest sample
 - [ ] Step 11 — Types re-export ABIs

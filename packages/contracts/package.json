@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "hardhat build",
-    "compile": "hardhat compile",
+    "compile": "hardhat compile && hardhat run scripts/export-abis.ts --no-compile",
+    "export-abis": "hardhat run scripts/export-abis.ts",
     "test": "hardhat test solidity",
     "test:all": "hardhat test",
     "clean": "hardhat clean",

@@ -12,7 +12,7 @@
     },
     "compile": {
       "dependsOn": ["^compile"],
-      "outputs": ["artifacts/**", "cache/**"]
+      "outputs": ["artifacts/**", "cache/**", "abis/**"]
     },
     "test": {
       "dependsOn": ["^compile"]
