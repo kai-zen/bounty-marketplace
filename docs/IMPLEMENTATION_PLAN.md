@@ -399,9 +399,9 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 2 — Remove nested web pnpm files
 - [x] Step 3 — Turbo dev/compile tasks
 - [x] Step 4 — On-chain aligned types
-- [ ] Step 5 — Metadata document types
-- [ ] Step 6 — API DTOs
-- [ ] Step 7 — Event payload types
+- [x] Step 5 — Metadata document types
+- [x] Step 6 — API DTOs
+- [x] Step 7 — Event payload types
 - [ ] Step 8 — ABI export script
 - [ ] Step 9 — Ignition local deploy
 - [ ] Step 10 — Deployment manifest sample
