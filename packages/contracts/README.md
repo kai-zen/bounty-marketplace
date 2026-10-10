@@ -27,6 +27,16 @@ Hardhat project containing the core Solidity smart contracts managing funds, sta
 
 **These ABI files are committed.** They are the interface the API and web app import, so a checkout can use them without Hardhat. When a contract interface changes, run `pnpm compile` from the repo root (or `pnpm --filter contracts export-abis`) and commit the updated JSON. Full compiler output under `artifacts/` (bytecode, build info, tests) stays gitignored.
 
+## Local deploy
+
+`ignition/modules/Marketplace.ts` deploys `SubmissionRegistry`, then `BountyFactory` with that registry, a fee recipient, and a platform fee.
+
+```bash
+pnpm --filter contracts deploy:local
+```
+
+The command targets the `hardhatMainnet` simulated network. The fee recipient is `FEE_RECIPIENT` when that env var is set, and Hardhat account #1 otherwise (account #0 deploys and owns the factory). The platform fee defaults to 250 bps. Both values are Ignition parameters (`feeRecipient`, `platformFeeBps`), so a parameters file overrides those defaults.
+
 ## Core Trust Principles
 
 - **Funds are non-custodial:** ETH is locked in individual Escrow contracts.

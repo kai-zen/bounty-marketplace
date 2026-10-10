@@ -7,6 +7,7 @@
     "build": "hardhat build",
     "compile": "hardhat compile && hardhat run scripts/export-abis.ts --no-compile",
     "export-abis": "hardhat run scripts/export-abis.ts",
+    "deploy:local": "hardhat ignition deploy ignition/modules/Marketplace.ts --network hardhatMainnet",
     "test": "hardhat test solidity",
     "test:all": "hardhat test",
     "clean": "hardhat clean",
