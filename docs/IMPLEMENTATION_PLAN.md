@@ -429,7 +429,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 31 — Wagmi/viem providers
 - [x] Step 32 — Layout shell + metadata
 - [x] Step 33 — API client helpers
-- [ ] Step 34 — Explore page
+- [x] Step 34 — Explore page
 - [ ] Step 35 — Create bounty page
 - [ ] Step 36 — Bounty detail read-only
 - [ ] Step 37 — Submit work flow

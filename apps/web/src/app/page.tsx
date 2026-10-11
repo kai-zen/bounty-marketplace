@@ -1,26 +1,39 @@
-import { fetchBounties, fetchHealth } from "@/lib/api";
+import { ExploreBounties } from "@/components/ExploreBounties";
+import { PageHeader } from "@bounty/ui";
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+import type { Metadata } from "next";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
-  let apiMessage = "API unreachable — start the backend (`pnpm dev:api`) and check NEXT_PUBLIC_API_URL.";
+export const metadata: Metadata = {
+  title: "Explore",
+};
 
-  try {
-    const [health, bounties] = await Promise.all([fetchHealth(), fetchBounties()]);
-    const healthLabel = health.status === "ok" ? "healthy" : health.status;
-    apiMessage = `API ${healthLabel}; ${bounties.total} indexed bounties.`;
-  } catch {
-    // Keep default apiMessage.
-  }
-
+function ExploreLoading() {
   return (
-    <div>
-      <p style={{ margin: 0, color: "var(--foreground, #666)" }}>
-        Explore bounties — list view coming in the next step.
-      </p>
-      <p style={{ margin: "0.75rem 0 0", fontSize: "0.875rem", color: "#888" }}>
-        {apiMessage}
-      </p>
-    </div>
+    <Box
+      sx={{ display: "flex", justifyContent: "center", py: 8 }}
+      role="status"
+      aria-live="polite"
+      aria-label="Loading bounties"
+    >
+      <CircularProgress />
+    </Box>
+  );
+}
+
+export default function Home() {
+  return (
+    <>
+      <PageHeader
+        title="Explore"
+        subtitle="Browse indexed bounties from the marketplace."
+      />
+      <Suspense fallback={<ExploreLoading />}>
+        <ExploreBounties />
+      </Suspense>
+    </>
   );
 }
