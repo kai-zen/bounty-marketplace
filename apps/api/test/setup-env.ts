@@ -1,6 +1,7 @@
 /**
  * e2e imports `AppModule`, which validates env before the suite runs.
- * These values match `apps/api/.env.example` and are not a live dependency.
+ * These values match `apps/api/.env.example`.
+ * MongoDB must be running: `/health` pings `MONGODB_URI`.
  */
 process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/bounty-marketplace';
 process.env.PORT = '3001';
