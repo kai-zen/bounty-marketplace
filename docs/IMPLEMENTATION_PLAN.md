@@ -423,7 +423,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 25 — Submissions read API
 - [x] Step 26 — Activity timeline API
 - [x] Step 27 — Denormalize title on index
-- [ ] Step 28 — UI theme provider
+- [x] Step 28 — UI theme provider
 - [ ] Step 29 — AppShell and StatusChip
 - [ ] Step 30 — BountyCard and EmptyState
 - [ ] Step 31 — Wagmi/viem providers
