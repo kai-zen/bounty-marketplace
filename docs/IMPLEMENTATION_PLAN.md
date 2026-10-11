@@ -409,7 +409,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 11 — Types re-export ABIs
 - [x] Step 12 — Docker Mongo + env examples
 - [x] Step 13 — Local dev runbook
-- [ ] Step 14 — API config validation
+- [x] Step 14 — API config validation
 - [ ] Step 15 — Mongoose + health
 - [ ] Step 16 — API prefix + CORS
 - [ ] Step 17 — Metadata POST

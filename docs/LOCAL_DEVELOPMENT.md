@@ -60,4 +60,4 @@ pnpm dev
 | API | http://localhost:3001 (`PORT` in `apps/api/.env`) |
 | MongoDB | `mongodb://127.0.0.1:27017/bounty-marketplace` |
 
-The API, indexer, and web UI are still in progress. Later steps in the [roadmap](IMPLEMENTATION_PLAN.md) add config validation, indexing, and pages.
+The API, indexer, and web UI are still in progress. The API exits on startup when `apps/api/.env` is missing required values. Later steps in the [roadmap](IMPLEMENTATION_PLAN.md) add indexing and pages.
