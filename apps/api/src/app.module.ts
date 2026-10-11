@@ -7,6 +7,7 @@ import {
   envValidationSchema,
 } from './config/env.validation';
 import { BlockchainModule } from './blockchain/blockchain.module';
+import { BountiesModule } from './bounties/bounties.module';
 import { HealthModule } from './health/health.module';
 import { IndexerModule } from './indexer/indexer.module';
 import { MetadataModule } from './metadata/metadata.module';
@@ -26,6 +27,7 @@ import { MetadataModule } from './metadata/metadata.module';
       }),
     }),
     BlockchainModule,
+    BountiesModule,
     HealthModule,
     MetadataModule,
     IndexerModule,

@@ -419,7 +419,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 21 — Indexer skeleton + cursor
 - [x] Step 22 — Index create + submit events
 - [x] Step 23 — Index award/claim/refund events
-- [ ] Step 24 — Bounties read API
+- [x] Step 24 — Bounties read API
 - [ ] Step 25 — Submissions read API
 - [ ] Step 26 — Activity timeline API
 - [ ] Step 27 — Denormalize title on index
