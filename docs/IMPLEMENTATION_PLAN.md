@@ -425,7 +425,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 27 — Denormalize title on index
 - [x] Step 28 — UI theme provider
 - [x] Step 29 — AppShell and StatusChip
-- [ ] Step 30 — BountyCard and EmptyState
+- [x] Step 30 — BountyCard and EmptyState
 - [ ] Step 31 — Wagmi/viem providers
 - [ ] Step 32 — Layout shell + metadata
 - [ ] Step 33 — API client helpers
