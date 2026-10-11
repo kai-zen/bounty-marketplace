@@ -1,3 +1,4 @@
+import { ConnectWallet } from "@/components/ConnectWallet";
 import Image from "next/image";
 import styles from "./page.module.css";
 
@@ -14,6 +15,7 @@ export default function Home() {
           priority
         />
         <div className={styles.intro}>
+          <ConnectWallet />
           <h1>To get started, edit the page.tsx file.</h1>
           <p>
             Looking for a starting point or more instructions? Head over to{" "}
