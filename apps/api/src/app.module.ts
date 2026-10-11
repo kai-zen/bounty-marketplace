@@ -11,6 +11,7 @@ import { BountiesModule } from './bounties/bounties.module';
 import { HealthModule } from './health/health.module';
 import { IndexerModule } from './indexer/indexer.module';
 import { MetadataModule } from './metadata/metadata.module';
+import { SubmissionsModule } from './submissions/submissions.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { MetadataModule } from './metadata/metadata.module';
     BlockchainModule,
     BountiesModule,
     HealthModule,
+    SubmissionsModule,
     MetadataModule,
     IndexerModule,
   ],

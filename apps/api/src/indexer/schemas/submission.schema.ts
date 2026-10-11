@@ -29,3 +29,4 @@ export class SubmissionRecord {
 export const SubmissionSchema = SchemaFactory.createForClass(SubmissionRecord);
 
 SubmissionSchema.index({ bountyAddress: 1, submissionId: 1 });
+SubmissionSchema.index({ submitter: 1, submissionId: -1 });
