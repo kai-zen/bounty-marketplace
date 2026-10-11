@@ -35,8 +35,17 @@ export class BountiesService {
       throw new BadRequestException(message);
     }
 
-    const { page, limit, status } = parsed;
-    const filter = status === undefined ? {} : { status };
+    const { page, limit, status, search } = parsed;
+    const filter: {
+      status?: typeof status;
+      searchText?: { $regex: string; $options: 'i' };
+    } = {};
+    if (status !== undefined) {
+      filter.status = status;
+    }
+    if (search !== undefined) {
+      filter.searchText = { $regex: escapeRegex(search), $options: 'i' };
+    }
 
     const [records, total] = await Promise.all([
       this.bountyModel
@@ -77,6 +86,10 @@ export class BountiesService {
 
     return toBountyDetail(record);
   }
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function toBountySummary(record: BountyRecord): BountySummary {

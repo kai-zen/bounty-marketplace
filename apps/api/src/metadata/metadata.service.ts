@@ -35,11 +35,26 @@ export class MetadataService {
   }
 
   async getById(id: string): Promise<BountyMetadata | SubmissionMetadata> {
-    const record = await this.metadataModel.findOne({ id }).lean().exec();
+    const record = await this.findRecord(id);
     if (!record) {
       throw new NotFoundException(`Metadata not found: ${id}`);
     }
     return record.payload;
+  }
+
+  async findRecord(id: string): Promise<{
+    kind: MetadataKind;
+    payload: BountyMetadata | SubmissionMetadata;
+  } | null> {
+    const record = await this.metadataModel
+      .findOne({ id })
+      .select({ kind: 1, payload: 1 })
+      .lean()
+      .exec();
+    if (!record) {
+      return null;
+    }
+    return { kind: record.kind, payload: record.payload };
   }
 
   private async create(

@@ -13,6 +13,7 @@ import {
   submissionRegistryAbi,
 } from '../contracts/abis';
 import { BlockchainService } from '../blockchain/blockchain.service';
+import { BountyMetadataResolver } from './bounty-metadata.resolver';
 import { IndexerStateService } from './indexer-state.service';
 import { ActivityRecord } from './schemas/activity.schema';
 import { BountyRecord } from './schemas/bounty.schema';
@@ -155,6 +156,7 @@ export class IndexerSyncService {
     private readonly submissionModel: Model<SubmissionRecord>,
     @InjectModel(ActivityRecord.name)
     private readonly activityModel: Model<ActivityRecord>,
+    private readonly bountyMetadata: BountyMetadataResolver,
   ) {}
 
   /** Catch up from cursor to chain head in bounded block ranges. */
@@ -437,6 +439,7 @@ export class IndexerSyncService {
     const factory = await this.loadFactoryConfig();
     const escrowAddress = event.escrow.toLowerCase();
     const deadline = Number(event.deadline);
+    const metadata = await this.bountyMetadata.resolve(event.metadataURI);
 
     await this.bountyModel.updateOne(
       { escrowAddress },
@@ -444,6 +447,9 @@ export class IndexerSyncService {
         $set: {
           escrowAddress,
           creator: event.creator.toLowerCase(),
+          title: metadata.title,
+          tags: metadata.tags,
+          searchText: metadata.searchText,
           reward: event.amount.toString(),
           deadline,
           metadataURI: event.metadataURI,

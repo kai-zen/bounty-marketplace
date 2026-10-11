@@ -12,9 +12,17 @@ export class BountyRecord {
   @Prop({ required: true, lowercase: true })
   creator!: string;
 
-  /** Denormalized from metadata when indexed (Step 27). */
+  /** Denormalized from bounty metadata when the bounty is indexed. */
   @Prop({ default: '' })
   title!: string;
+
+  /** Denormalized tags from bounty metadata. */
+  @Prop({ type: [String], default: [] })
+  tags!: string[];
+
+  /** Lowercased title, description, and tags for list search. */
+  @Prop({ default: '' })
+  searchText!: string;
 
   @Prop({ required: true })
   reward!: string;

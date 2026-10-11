@@ -24,6 +24,24 @@ describe('bounties query validation', () => {
     });
   });
 
+  it('trims search and drops a blank value', () => {
+    expect(parseListBountiesQuery({ search: '  login  ' })).toEqual({
+      page: DEFAULT_BOUNTY_PAGE,
+      limit: DEFAULT_BOUNTY_LIMIT,
+      search: 'login',
+    });
+    expect(parseListBountiesQuery({ search: '   ' })).toEqual({
+      page: DEFAULT_BOUNTY_PAGE,
+      limit: DEFAULT_BOUNTY_LIMIT,
+    });
+  });
+
+  it('rejects an overly long search', () => {
+    expect(() => parseListBountiesQuery({ search: 'a'.repeat(201) })).toThrow(
+      /search/,
+    );
+  });
+
   it('rejects an unknown status', () => {
     expect(() => parseListBountiesQuery({ status: '9' })).toThrow(/status/);
   });

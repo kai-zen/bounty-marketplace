@@ -2,6 +2,10 @@ import { Model } from 'mongoose';
 import { BountyStatus, SubmissionStatus } from '@bounty/types';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { IndexerStateService } from './indexer-state.service';
+import {
+  BountyMetadataResolver,
+  type DenormalizedBountyMetadata,
+} from './bounty-metadata.resolver';
 import { IndexerSyncService } from './indexer-sync.service';
 import { ActivityRecord } from './schemas/activity.schema';
 import { BountyRecord } from './schemas/bounty.schema';
@@ -99,6 +103,14 @@ describe('IndexerSyncService', () => {
     const activityModel = {
       create: jest.fn().mockResolvedValue({}),
     };
+    const resolvedMetadata: DenormalizedBountyMetadata = {
+      title: '',
+      tags: [],
+      searchText: '',
+    };
+    const metadataResolver = {
+      resolve: jest.fn().mockResolvedValue(resolvedMetadata),
+    };
 
     const service = new IndexerSyncService(
       blockchain as unknown as BlockchainService,
@@ -106,6 +118,7 @@ describe('IndexerSyncService', () => {
       bountyModel as unknown as Model<BountyRecord>,
       submissionModel as unknown as Model<SubmissionRecord>,
       activityModel as unknown as Model<ActivityRecord>,
+      metadataResolver as unknown as BountyMetadataResolver,
     );
 
     return {
@@ -113,6 +126,7 @@ describe('IndexerSyncService', () => {
       bountyModel,
       submissionModel,
       activityModel,
+      metadataResolver,
       state,
       getContractEvents,
     };
@@ -129,42 +143,57 @@ describe('IndexerSyncService', () => {
       '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' as const;
     const submitTx =
       '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' as const;
-    const { service, bountyModel, submissionModel, activityModel, state } =
-      createService({
-        lastProcessedBlock: -1,
-        head: 5n,
-        bountyLogs: [
-          {
-            blockNumber: 2n,
-            logIndex: 0,
-            transactionHash: txHash,
-            args: {
-              bountyId: 0n,
-              escrow,
-              creator,
-              deadline: 9999999999n,
-              metadataURI: 'https://example.com/bounty',
-              amount: 1000n,
-            },
+    const {
+      service,
+      bountyModel,
+      submissionModel,
+      activityModel,
+      metadataResolver,
+      state,
+    } = createService({
+      lastProcessedBlock: -1,
+      head: 5n,
+      bountyLogs: [
+        {
+          blockNumber: 2n,
+          logIndex: 0,
+          transactionHash: txHash,
+          args: {
+            bountyId: 0n,
+            escrow,
+            creator,
+            deadline: 9999999999n,
+            metadataURI: 'https://example.com/bounty',
+            amount: 1000n,
           },
-        ],
-        submissionLogs: [
-          {
-            blockNumber: 3n,
-            logIndex: 1,
-            transactionHash: submitTx,
-            args: {
-              submissionId: 0n,
-              bountyAddress: escrow,
-              submitter: winner,
-              submissionURI: 'https://example.com/submission',
-            },
+        },
+      ],
+      submissionLogs: [
+        {
+          blockNumber: 3n,
+          logIndex: 1,
+          transactionHash: submitTx,
+          args: {
+            submissionId: 0n,
+            bountyAddress: escrow,
+            submitter: winner,
+            submissionURI: 'https://example.com/submission',
           },
-        ],
-      });
+        },
+      ],
+    });
+
+    metadataResolver.resolve.mockResolvedValue({
+      title: 'Ship the explorer',
+      tags: ['ui'],
+      searchText: 'ship the explorer\nlist indexed bounties\nui',
+    });
 
     await service.sync();
 
+    expect(metadataResolver.resolve).toHaveBeenCalledWith(
+      'https://example.com/bounty',
+    );
     expect(bountyModel.updateOne).toHaveBeenCalledWith(
       { escrowAddress: escrow.toLowerCase() },
       expect.any(Object),
@@ -174,6 +203,9 @@ describe('IndexerSyncService', () => {
       .calls as unknown as MongoUpdateCall[];
     expect(bountyUpdateCalls[0]?.[1].$set).toMatchObject({
       status: BountyStatus.Open,
+      title: 'Ship the explorer',
+      tags: ['ui'],
+      searchText: 'ship the explorer\nlist indexed bounties\nui',
       metadataURI: 'https://example.com/bounty',
       reward: '1000',
       createdTxHash: txHash,

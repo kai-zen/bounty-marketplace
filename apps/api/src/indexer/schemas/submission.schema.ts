@@ -15,7 +15,7 @@ export class SubmissionRecord {
   @Prop({ required: true, lowercase: true })
   submitter!: string;
 
-  /** Denormalized from metadata when indexed (Step 27). */
+  /** Denormalized from submission metadata when indexed. */
   @Prop({ default: '' })
   title!: string;
 

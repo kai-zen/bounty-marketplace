@@ -11,6 +11,9 @@ describe('indexer Mongoose schemas', () => {
     );
     for (const path of [
       'creator',
+      'title',
+      'tags',
+      'searchText',
       'reward',
       'deadline',
       'metadataURI',

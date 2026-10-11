@@ -11,6 +11,8 @@ const indexedBounty: BountyRecord = {
   escrowAddress: escrow,
   creator,
   title: '',
+  tags: [],
+  searchText: '',
   reward: '1000',
   deadline: 1_900_000_000,
   metadataURI: 'http://localhost:3001/api/v1/metadata/abc',
@@ -76,6 +78,7 @@ describe('BountiesService', () => {
     });
     expect(findQuery.skip).toHaveBeenCalledWith(0);
     expect(findQuery.limit).toHaveBeenCalledWith(20);
+    expect(bountyModel.find).toHaveBeenCalledTimes(1);
     expect(result).toEqual({
       items: [
         {
@@ -91,6 +94,40 @@ describe('BountiesService', () => {
       page: 1,
       limit: 20,
       total: 1,
+    });
+  });
+
+  it('filters list search against denormalized text', async () => {
+    const { service, bountyModel } = createService({
+      list: [
+        {
+          ...indexedBounty,
+          title: 'Fix login bug',
+          searchText: 'fix login bug\nsession expires too soon\nauth',
+        },
+      ],
+      total: 1,
+    });
+
+    const result = await service.list({ search: 'Login', status: '0' });
+
+    expect(bountyModel.find).toHaveBeenCalledTimes(1);
+    expect(bountyModel.find).toHaveBeenCalledWith({
+      status: BountyStatus.Open,
+      searchText: { $regex: 'Login', $options: 'i' },
+    });
+    expect(result.items).toEqual([
+      expect.objectContaining({ title: 'Fix login bug' }),
+    ]);
+  });
+
+  it('escapes regex characters in search', async () => {
+    const { service, bountyModel } = createService({ list: [], total: 0 });
+
+    await service.list({ search: 'c++' });
+
+    expect(bountyModel.find).toHaveBeenCalledWith({
+      searchText: { $regex: 'c\\+\\+', $options: 'i' },
     });
   });
 

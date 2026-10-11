@@ -18,6 +18,7 @@ export interface ListBountiesQuery {
   page: number;
   limit: number;
   status?: BountyStatus;
+  search?: string;
 }
 
 export const listBountiesQuerySchema = Joi.object<ListBountiesQuery>({
@@ -31,6 +32,7 @@ export const listBountiesQuerySchema = Joi.object<ListBountiesQuery>({
     .integer()
     .valid(...BOUNTY_STATUSES)
     .optional(),
+  search: Joi.string().trim().max(200).empty('').optional(),
 });
 
 export function parseListBountiesQuery(query: unknown): ListBountiesQuery {
