@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from 'src/app.module';
-import { API_GLOBAL_PREFIX, configureApp } from 'src/main';
+import { AppModule } from '../src/app.module';
+import { API_GLOBAL_PREFIX, configureApp } from '../src/configure-app';
 
 describe('Health (e2e)', () => {
   let app: INestApplication<App>;

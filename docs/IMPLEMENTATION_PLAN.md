@@ -412,8 +412,8 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 14 — API config validation
 - [x] Step 15 — Mongoose + health
 - [x] Step 16 — API prefix + CORS
-- [ ] Step 17 — Metadata POST
-- [ ] Step 18 — Metadata GET
+- [x] Step 17 — Metadata POST
+- [x] Step 18 — Metadata GET
 - [ ] Step 19 — BlockchainModule viem
 - [ ] Step 20 — Bounty/Submission schemas
 - [ ] Step 21 — Indexer skeleton + cursor

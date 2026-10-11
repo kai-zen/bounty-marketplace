@@ -24,13 +24,13 @@
     "@nestjs/mongoose": "^11.0.4",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/terminus": "^11.1.1",
+    "@bounty/types": "workspace:*",
     "joi": "^17.13.8",
     "mongoose": "^9.6.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "@bounty/types": "workspace:*",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@nestjs/cli": "^11.0.0",

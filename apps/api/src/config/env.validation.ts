@@ -8,6 +8,8 @@ import Joi from 'joi';
 export interface EnvironmentVariables {
   MONGODB_URI: string;
   PORT: number;
+  /** Base URL for absolute metadata URIs returned to clients and stored on-chain. */
+  API_PUBLIC_URL: string;
   RPC_URL: string;
   CHAIN_ID: number;
   FACTORY_ADDRESS: string;
@@ -36,6 +38,9 @@ export const envValidationSchema = Joi.object<EnvironmentVariables>({
     .uri({ scheme: ['mongodb', 'mongodb+srv'] })
     .required(),
   PORT: Joi.number().port().default(3001),
+  API_PUBLIC_URL: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .default('http://localhost:3001'),
   RPC_URL: Joi.string()
     .uri({ scheme: ['http', 'https', 'ws', 'wss'] })
     .required(),

@@ -35,6 +35,7 @@ describe('envValidationSchema', () => {
       MONGODB_URI: validEnv.MONGODB_URI,
       RPC_URL: validEnv.RPC_URL,
       PORT: 3001,
+      API_PUBLIC_URL: 'http://localhost:3001',
       CHAIN_ID: 31337,
       FACTORY_ADDRESS: validEnv.FACTORY_ADDRESS,
       REGISTRY_ADDRESS: validEnv.REGISTRY_ADDRESS,
