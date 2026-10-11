@@ -57,6 +57,9 @@
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
+    "moduleNameMapper": {
+      "^@bounty/types/abis$": "<rootDir>/../../../packages/types/abis.ts"
+    },
     "moduleFileExtensions": [
       "js",
       "json",

@@ -4,6 +4,7 @@ import { BlockchainModule } from '../blockchain/blockchain.module';
 import { IndexerSchemasModule } from './indexer-schemas.module';
 import { IndexerStateService } from './indexer-state.service';
 import { IndexerService } from './indexer.service';
+import { IndexerSyncService } from './indexer-sync.service';
 import {
   IndexerStateRecord,
   IndexerStateSchema,
@@ -17,7 +18,7 @@ import {
       { name: IndexerStateRecord.name, schema: IndexerStateSchema },
     ]),
   ],
-  providers: [IndexerStateService, IndexerService],
+  providers: [IndexerStateService, IndexerSyncService, IndexerService],
   exports: [IndexerStateService, IndexerSchemasModule],
 })
 export class IndexerModule {}

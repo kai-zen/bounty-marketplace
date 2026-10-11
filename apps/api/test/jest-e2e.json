@@ -1,4 +1,7 @@
 {
+  "moduleNameMapper": {
+    "^@bounty/types/abis$": "<rootDir>/../../../packages/types/abis.ts"
+  },
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
   "testEnvironment": "node",

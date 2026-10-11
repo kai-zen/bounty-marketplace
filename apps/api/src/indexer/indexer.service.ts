@@ -4,10 +4,9 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { BlockchainService } from '../blockchain/blockchain.service';
 import { IndexerStateService } from './indexer-state.service';
+import { IndexerSyncService } from './indexer-sync.service';
 
-/** Polling interval until event handlers land in Step 22. */
 const INDEXER_POLL_INTERVAL_MS = 12_000;
 
 @Injectable()
@@ -17,7 +16,7 @@ export class IndexerService implements OnModuleInit, OnModuleDestroy {
 
   constructor(
     private readonly state: IndexerStateService,
-    private readonly blockchain: BlockchainService,
+    private readonly sync: IndexerSyncService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -25,6 +24,7 @@ export class IndexerService implements OnModuleInit, OnModuleDestroy {
     this.logger.log(
       `Indexer cursor loaded (chain ${cursor.chainId}, block ${cursor.lastProcessedBlock})`,
     );
+    await this.poll();
     this.startPolling();
   }
 
@@ -42,16 +42,9 @@ export class IndexerService implements OnModuleInit, OnModuleDestroy {
     this.pollTimer.unref?.();
   }
 
-  /** Placeholder sync tick; Step 22 adds log handlers and cursor advancement. */
   private async poll(): Promise<void> {
     try {
-      const head = await this.blockchain.getBlockNumber();
-      const { lastProcessedBlock } = await this.state.getCursor();
-      if (head > BigInt(lastProcessedBlock)) {
-        this.logger.debug(
-          `Indexer poll: chain head ${head}, cursor ${lastProcessedBlock} (event handlers not wired yet)`,
-        );
-      }
+      await this.sync.sync();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Indexer poll failed';
