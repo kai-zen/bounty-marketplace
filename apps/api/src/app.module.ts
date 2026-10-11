@@ -8,7 +8,7 @@ import {
 } from './config/env.validation';
 import { BlockchainModule } from './blockchain/blockchain.module';
 import { HealthModule } from './health/health.module';
-import { IndexerSchemasModule } from './indexer/indexer-schemas.module';
+import { IndexerModule } from './indexer/indexer.module';
 import { MetadataModule } from './metadata/metadata.module';
 
 @Module({
@@ -28,7 +28,7 @@ import { MetadataModule } from './metadata/metadata.module';
     BlockchainModule,
     HealthModule,
     MetadataModule,
-    IndexerSchemasModule,
+    IndexerModule,
   ],
 })
 export class AppModule {}
