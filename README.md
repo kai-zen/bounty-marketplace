@@ -6,6 +6,11 @@ A decentralized bounty marketplace where creators can fund tasks with ETH, and c
 
 Smart contracts in `packages/contracts` are complete. The API, indexer, and web UI are in progress.
 
+## Docs
+
+- [Local development](docs/LOCAL_DEVELOPMENT.md) — MongoDB, contract deploy, env files, and `pnpm dev`.
+- [Implementation plan](docs/IMPLEMENTATION_PLAN.md) — full build roadmap.
+
 ## Architecture Overview
 
 The platform strictly separates on-chain trust/money logic from off-chain indexing/metadata.

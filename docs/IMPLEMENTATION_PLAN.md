@@ -120,9 +120,10 @@ Execute steps **in order**; later steps depend on earlier ones.
 
 ### Step 13
 
-`[docs]: add local development runbook to root README`
+`[docs]: add local development runbook`
 
-- Document ordered startup: Mongo → deploy contracts → copy env → `pnpm dev`.
+- Document ordered startup in `docs/LOCAL_DEVELOPMENT.md`: Mongo → deploy contracts → copy env → `pnpm dev`.
+- Root `README.md` stays a short overview and links to that runbook.
 - Link to this file (`docs/IMPLEMENTATION_PLAN.md`) for the full roadmap.
 - **Verify:** Cold start is followable without chat context.
 
@@ -407,7 +408,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 10 — Deployment manifest sample
 - [x] Step 11 — Types re-export ABIs
 - [x] Step 12 — Docker Mongo + env examples
-- [ ] Step 13 — Local dev runbook
+- [x] Step 13 — Local dev runbook
 - [ ] Step 14 — API config validation
 - [ ] Step 15 — Mongoose + health
 - [ ] Step 16 — API prefix + CORS
