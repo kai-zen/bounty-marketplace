@@ -432,7 +432,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 34 — Explore page
 - [x] Step 35 — Create bounty page
 - [x] Step 36 — Bounty detail read-only
-- [ ] Step 37 — Submit work flow
+- [x] Step 37 — Submit work flow
 - [ ] Step 38 — Award and claim
 - [ ] Step 39 — Refund and dashboard
 - [ ] Step 40 — API e2e tests

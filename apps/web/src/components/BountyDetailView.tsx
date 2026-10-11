@@ -1,3 +1,4 @@
+import { SubmitWorkForm } from "@/components/SubmitWorkForm";
 import { formatAddress } from "@/lib/formatAddress";
 import {
   formatFeePercent,
@@ -274,15 +275,33 @@ function SubmissionsSection({ data }: { data: BountyDetailData }) {
   const { bounty, submissions } = data;
   const hidden = Math.max(0, submissions.total - submissions.items.length);
 
+  const now = new Date().getTime();
+  const acceptingWork =
+    bounty.status === BountyStatus.Open && bounty.deadline * 1000 > now;
+
   return (
     <Box component="section" aria-labelledby="bounty-submissions-heading">
       <Typography id="bounty-submissions-heading" variant="h6" sx={{ mb: 1.5 }}>
         Submissions
       </Typography>
+      {acceptingWork ? (
+        <Box sx={{ mb: 2.5 }}>
+          <SubmitWorkForm
+            escrowAddress={bounty.escrowAddress}
+            creator={bounty.creator}
+            registryAddress={bounty.submissionRegistry}
+            deadline={bounty.deadline}
+          />
+        </Box>
+      ) : null}
       {submissions.items.length === 0 ? (
         <EmptyState
           title="No submissions yet"
-          message="Work submitted on-chain shows up here after the indexer records it."
+          message={
+            acceptingWork
+              ? "Send your write-up above. It shows up here after the indexer records the transaction."
+              : "Work submitted on-chain shows up here after the indexer records it."
+          }
         />
       ) : (
         <Stack spacing={1.5}>
@@ -408,7 +427,7 @@ function ActivitySection({ data }: { data: BountyDetailData }) {
   );
 }
 
-/** Read-only bounty: brief, escrow facts, submissions, and the activity timeline. */
+/** Bounty detail: brief, escrow facts, submit-work form, submissions, and activity. */
 export function BountyDetailView({ data }: { data: BountyDetailData }) {
   return (
     <>
