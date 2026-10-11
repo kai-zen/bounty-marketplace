@@ -3,6 +3,7 @@ import { BountyStatus, SubmissionStatus } from '@bounty/types';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { IndexerStateService } from './indexer-state.service';
 import { IndexerSyncService } from './indexer-sync.service';
+import { ActivityRecord } from './schemas/activity.schema';
 import { BountyRecord } from './schemas/bounty.schema';
 import { SubmissionRecord } from './schemas/submission.schema';
 
@@ -65,9 +66,14 @@ describe('IndexerSyncService', () => {
         }
         return Promise.resolve(100n);
       });
+    const getBlock = jest
+      .fn()
+      .mockImplementation(({ blockNumber }: { blockNumber: bigint }) =>
+        Promise.resolve({ timestamp: 1_700_000_000n + blockNumber }),
+      );
 
     const blockchain = {
-      publicClient: { getContractEvents, readContract },
+      publicClient: { getContractEvents, readContract, getBlock },
       factoryAddress,
       registryAddress,
       getBlockNumber: jest.fn().mockResolvedValue(options.head),
@@ -90,57 +96,72 @@ describe('IndexerSyncService', () => {
         matchedCount: options.submissionMatchedCount ?? 1,
       }),
     };
+    const activityModel = {
+      create: jest.fn().mockResolvedValue({}),
+    };
 
     const service = new IndexerSyncService(
       blockchain as unknown as BlockchainService,
       state as unknown as IndexerStateService,
       bountyModel as unknown as Model<BountyRecord>,
       submissionModel as unknown as Model<SubmissionRecord>,
+      activityModel as unknown as Model<ActivityRecord>,
     );
 
     return {
       service,
       bountyModel,
       submissionModel,
+      activityModel,
       state,
       getContractEvents,
     };
   }
 
+  function activityTypes(activityModel: { create: jest.Mock }): string[] {
+    return activityModel.create.mock.calls.map(
+      (call: [{ type: string }]) => call[0].type,
+    );
+  }
+
   it('upserts bounty and submission rows and advances the cursor', async () => {
     const txHash =
       '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' as const;
-    const { service, bountyModel, submissionModel, state } = createService({
-      lastProcessedBlock: -1,
-      head: 5n,
-      bountyLogs: [
-        {
-          blockNumber: 2n,
-          logIndex: 0,
-          transactionHash: txHash,
-          args: {
-            bountyId: 0n,
-            escrow,
-            creator,
-            deadline: 9999999999n,
-            metadataURI: 'https://example.com/bounty',
-            amount: 1000n,
+    const submitTx =
+      '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' as const;
+    const { service, bountyModel, submissionModel, activityModel, state } =
+      createService({
+        lastProcessedBlock: -1,
+        head: 5n,
+        bountyLogs: [
+          {
+            blockNumber: 2n,
+            logIndex: 0,
+            transactionHash: txHash,
+            args: {
+              bountyId: 0n,
+              escrow,
+              creator,
+              deadline: 9999999999n,
+              metadataURI: 'https://example.com/bounty',
+              amount: 1000n,
+            },
           },
-        },
-      ],
-      submissionLogs: [
-        {
-          blockNumber: 3n,
-          logIndex: 1,
-          args: {
-            submissionId: 0n,
-            bountyAddress: escrow,
-            submitter: winner,
-            submissionURI: 'https://example.com/submission',
+        ],
+        submissionLogs: [
+          {
+            blockNumber: 3n,
+            logIndex: 1,
+            transactionHash: submitTx,
+            args: {
+              submissionId: 0n,
+              bountyAddress: escrow,
+              submitter: winner,
+              submissionURI: 'https://example.com/submission',
+            },
           },
-        },
-      ],
-    });
+        ],
+      });
 
     await service.sync();
 
@@ -171,47 +192,88 @@ describe('IndexerSyncService', () => {
     });
 
     expect(state.setLastProcessedBlock).toHaveBeenCalledWith(5);
+    expect(activityTypes(activityModel)).toEqual([
+      'BountyCreated',
+      'WorkSubmitted',
+    ]);
+    expect(activityModel.create).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        type: 'BountyCreated',
+        bounty: escrow.toLowerCase(),
+        actor: creator.toLowerCase(),
+        txHash,
+        timestamp: 1_700_000_002,
+        blockNumber: 2,
+        logIndex: 0,
+      }),
+    );
+    expect(activityModel.create).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        type: 'WorkSubmitted',
+        bounty: escrow.toLowerCase(),
+        actor: winner.toLowerCase(),
+        txHash: submitTx,
+        timestamp: 1_700_000_003,
+        submissionId: 0,
+        blockNumber: 3,
+        logIndex: 1,
+      }),
+    );
   });
 
   it('updates bounty and submission through award and claim', async () => {
-    const { service, bountyModel, submissionModel, getContractEvents } =
-      createService({
-        lastProcessedBlock: 3,
-        head: 6n,
-        winnerAwardedLogs: [
-          {
-            address: escrow,
-            blockNumber: 4n,
-            logIndex: 1,
-            args: {
-              winner,
-              submissionId: 0n,
-            },
+    const awardTx =
+      '0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc' as const;
+    const claimTx =
+      '0xdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd' as const;
+    const {
+      service,
+      bountyModel,
+      submissionModel,
+      activityModel,
+      getContractEvents,
+    } = createService({
+      lastProcessedBlock: 3,
+      head: 6n,
+      winnerAwardedLogs: [
+        {
+          address: escrow,
+          blockNumber: 4n,
+          logIndex: 1,
+          transactionHash: awardTx,
+          args: {
+            winner,
+            submissionId: 0n,
           },
-        ],
-        submissionSelectedLogs: [
-          {
-            blockNumber: 4n,
-            logIndex: 0,
-            args: {
-              submissionId: 0n,
-              bountyAddress: escrow,
-              submitter: winner,
-            },
+        },
+      ],
+      submissionSelectedLogs: [
+        {
+          blockNumber: 4n,
+          logIndex: 0,
+          transactionHash: awardTx,
+          args: {
+            submissionId: 0n,
+            bountyAddress: escrow,
+            submitter: winner,
           },
-        ],
-        rewardClaimedLogs: [
-          {
-            address: escrow,
-            blockNumber: 5n,
-            logIndex: 0,
-            args: {
-              winner,
-              winnerAmount: 990n,
-            },
+        },
+      ],
+      rewardClaimedLogs: [
+        {
+          address: escrow,
+          blockNumber: 5n,
+          logIndex: 0,
+          transactionHash: claimTx,
+          args: {
+            winner,
+            winnerAmount: 990n,
           },
-        ],
-      });
+        },
+      ],
+    });
 
     await service.sync();
 
@@ -251,10 +313,17 @@ describe('IndexerSyncService', () => {
       status: SubmissionStatus.Selected,
     });
     expect(submissionUpdateCalls[0]?.[2]).toBeUndefined();
+    expect(activityTypes(activityModel)).toEqual([
+      'SubmissionSelected',
+      'WinnerAwarded',
+      'RewardClaimed',
+    ]);
   });
 
   it('updates bounty status to Refunded on BountyRefunded', async () => {
-    const { service, bountyModel } = createService({
+    const refundTx =
+      '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' as const;
+    const { service, bountyModel, activityModel } = createService({
       lastProcessedBlock: 3,
       head: 5n,
       bountyRefundedLogs: [
@@ -262,6 +331,7 @@ describe('IndexerSyncService', () => {
           address: escrow,
           blockNumber: 4n,
           logIndex: 0,
+          transactionHash: refundTx,
           args: {
             creator,
             amount: 1000n,
@@ -283,5 +353,40 @@ describe('IndexerSyncService', () => {
       lastIndexedBlockNumber: 4,
     });
     expect(bountyUpdateCalls[0]?.[2]).toBeUndefined();
+    expect(activityTypes(activityModel)).toEqual(['BountyRefunded']);
+    expect(activityModel.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'BountyRefunded',
+        bounty: escrow.toLowerCase(),
+        actor: creator.toLowerCase(),
+        txHash: refundTx,
+        timestamp: 1_700_000_004,
+      }),
+    );
+  });
+
+  it('does not append activity when the escrow update does not match', async () => {
+    const { service, activityModel } = createService({
+      lastProcessedBlock: 3,
+      head: 5n,
+      bountyMatchedCount: 0,
+      bountyRefundedLogs: [
+        {
+          address: escrow,
+          blockNumber: 4n,
+          logIndex: 0,
+          transactionHash:
+            '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          args: {
+            creator,
+            amount: 1000n,
+          },
+        },
+      ],
+    });
+
+    await service.sync();
+
+    expect(activityModel.create).not.toHaveBeenCalled();
   });
 });

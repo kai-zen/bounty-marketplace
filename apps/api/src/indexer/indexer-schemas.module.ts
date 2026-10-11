@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ActivityRecord, ActivitySchema } from './schemas/activity.schema';
 import { BountyRecord, BountySchema } from './schemas/bounty.schema';
 import {
   SubmissionRecord,
@@ -10,6 +11,7 @@ import {
 @Module({
   imports: [
     MongooseModule.forFeature([
+      { name: ActivityRecord.name, schema: ActivitySchema },
       { name: BountyRecord.name, schema: BountySchema },
       { name: SubmissionRecord.name, schema: SubmissionSchema },
     ]),

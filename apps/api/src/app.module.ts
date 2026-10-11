@@ -6,6 +6,7 @@ import {
   envValidationOptions,
   envValidationSchema,
 } from './config/env.validation';
+import { ActivityModule } from './activity/activity.module';
 import { BlockchainModule } from './blockchain/blockchain.module';
 import { BountiesModule } from './bounties/bounties.module';
 import { HealthModule } from './health/health.module';
@@ -28,6 +29,7 @@ import { SubmissionsModule } from './submissions/submissions.module';
       }),
     }),
     BlockchainModule,
+    ActivityModule,
     BountiesModule,
     HealthModule,
     SubmissionsModule,

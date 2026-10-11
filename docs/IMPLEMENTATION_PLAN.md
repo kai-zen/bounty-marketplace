@@ -421,7 +421,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 23 — Index award/claim/refund events
 - [x] Step 24 — Bounties read API
 - [x] Step 25 — Submissions read API
-- [ ] Step 26 — Activity timeline API
+- [x] Step 26 — Activity timeline API
 - [ ] Step 27 — Denormalize title on index
 - [ ] Step 28 — UI theme provider
 - [ ] Step 29 — AppShell and StatusChip

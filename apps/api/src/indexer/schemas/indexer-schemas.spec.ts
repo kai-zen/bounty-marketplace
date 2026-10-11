@@ -1,4 +1,5 @@
 import { BountyStatus, SubmissionStatus } from '@bounty/types';
+import { ActivitySchema } from './activity.schema';
 import { BountySchema } from './bounty.schema';
 import { SubmissionSchema } from './submission.schema';
 
@@ -33,5 +34,27 @@ describe('indexer Mongoose schemas', () => {
     ] as const) {
       expect(SubmissionSchema.path(path)).toBeDefined();
     }
+  });
+
+  it('defines an append-only Activity timeline ordered by chain position', () => {
+    for (const path of [
+      'type',
+      'bounty',
+      'actor',
+      'txHash',
+      'timestamp',
+      'blockNumber',
+      'logIndex',
+    ] as const) {
+      expect(ActivitySchema.path(path)).toBeDefined();
+    }
+    expect(ActivitySchema.indexes()).toEqual(
+      expect.arrayContaining([
+        [
+          { blockNumber: 1, logIndex: 1 },
+          expect.objectContaining({ unique: true }),
+        ],
+      ]),
+    );
   });
 });

@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BountyStatus, SubmissionStatus } from '@bounty/types';
+import {
+  ActivityEventType,
+  BountyStatus,
+  SubmissionStatus,
+} from '@bounty/types';
 import { Model } from 'mongoose';
 import type { Abi, Address, Hash } from 'viem';
 import {
@@ -10,6 +14,7 @@ import {
 } from '../contracts/abis';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { IndexerStateService } from './indexer-state.service';
+import { ActivityRecord } from './schemas/activity.schema';
 import { BountyRecord } from './schemas/bounty.schema';
 import { SubmissionRecord } from './schemas/submission.schema';
 
@@ -38,6 +43,7 @@ type OrderedIndexerEvent =
       kind: 'WorkSubmitted';
       blockNumber: number;
       logIndex: number;
+      transactionHash: Hash;
       submissionId: bigint;
       bountyAddress: Address;
       submitter: Address;
@@ -47,6 +53,7 @@ type OrderedIndexerEvent =
       kind: 'WinnerAwarded';
       blockNumber: number;
       logIndex: number;
+      transactionHash: Hash;
       escrow: Address;
       winner: Address;
       submissionId: bigint;
@@ -55,6 +62,7 @@ type OrderedIndexerEvent =
       kind: 'RewardClaimed';
       blockNumber: number;
       logIndex: number;
+      transactionHash: Hash;
       escrow: Address;
       winner: Address;
       winnerAmount: bigint;
@@ -63,6 +71,7 @@ type OrderedIndexerEvent =
       kind: 'BountyRefunded';
       blockNumber: number;
       logIndex: number;
+      transactionHash: Hash;
       escrow: Address;
       creator: Address;
       amount: bigint;
@@ -71,6 +80,7 @@ type OrderedIndexerEvent =
       kind: 'SubmissionSelected';
       blockNumber: number;
       logIndex: number;
+      transactionHash: Hash;
       submissionId: bigint;
       bountyAddress: Address;
       submitter: Address;
@@ -143,6 +153,8 @@ export class IndexerSyncService {
     private readonly bountyModel: Model<BountyRecord>,
     @InjectModel(SubmissionRecord.name)
     private readonly submissionModel: Model<SubmissionRecord>,
+    @InjectModel(ActivityRecord.name)
+    private readonly activityModel: Model<ActivityRecord>,
   ) {}
 
   /** Catch up from cursor to chain head in bounded block ranges. */
@@ -167,8 +179,13 @@ export class IndexerSyncService {
     toBlock: number,
   ): Promise<void> {
     const events = await this.fetchOrderedEvents(fromBlock, toBlock);
+    const timestamps = await this.loadBlockTimestamps(events);
     for (const event of events) {
-      await this.handleEvent(event);
+      const timestamp = timestamps.get(event.blockNumber);
+      if (timestamp === undefined) {
+        throw new Error(`Missing timestamp for block ${event.blockNumber}`);
+      }
+      await this.handleEvent(event, timestamp);
     }
   }
 
@@ -266,6 +283,7 @@ export class IndexerSyncService {
       if (
         log.blockNumber == null ||
         log.logIndex == null ||
+        !log.transactionHash ||
         submissionId == null ||
         bountyAddress == null ||
         submitter == null ||
@@ -277,6 +295,7 @@ export class IndexerSyncService {
         kind: 'WorkSubmitted',
         blockNumber: Number(log.blockNumber),
         logIndex: log.logIndex,
+        transactionHash: log.transactionHash,
         submissionId,
         bountyAddress,
         submitter,
@@ -290,6 +309,7 @@ export class IndexerSyncService {
         log.address == null ||
         log.blockNumber == null ||
         log.logIndex == null ||
+        !log.transactionHash ||
         winner == null ||
         submissionId == null
       ) {
@@ -299,6 +319,7 @@ export class IndexerSyncService {
         kind: 'WinnerAwarded',
         blockNumber: Number(log.blockNumber),
         logIndex: log.logIndex,
+        transactionHash: log.transactionHash,
         escrow: log.address,
         winner,
         submissionId,
@@ -311,6 +332,7 @@ export class IndexerSyncService {
         log.address == null ||
         log.blockNumber == null ||
         log.logIndex == null ||
+        !log.transactionHash ||
         winner == null ||
         winnerAmount == null
       ) {
@@ -320,6 +342,7 @@ export class IndexerSyncService {
         kind: 'RewardClaimed',
         blockNumber: Number(log.blockNumber),
         logIndex: log.logIndex,
+        transactionHash: log.transactionHash,
         escrow: log.address,
         winner,
         winnerAmount,
@@ -332,6 +355,7 @@ export class IndexerSyncService {
         log.address == null ||
         log.blockNumber == null ||
         log.logIndex == null ||
+        !log.transactionHash ||
         creator == null ||
         amount == null
       ) {
@@ -341,6 +365,7 @@ export class IndexerSyncService {
         kind: 'BountyRefunded',
         blockNumber: Number(log.blockNumber),
         logIndex: log.logIndex,
+        transactionHash: log.transactionHash,
         escrow: log.address,
         creator,
         amount,
@@ -352,6 +377,7 @@ export class IndexerSyncService {
       if (
         log.blockNumber == null ||
         log.logIndex == null ||
+        !log.transactionHash ||
         submissionId == null ||
         bountyAddress == null ||
         submitter == null
@@ -362,6 +388,7 @@ export class IndexerSyncService {
         kind: 'SubmissionSelected',
         blockNumber: Number(log.blockNumber),
         logIndex: log.logIndex,
+        transactionHash: log.transactionHash,
         submissionId,
         bountyAddress,
         submitter,
@@ -378,30 +405,34 @@ export class IndexerSyncService {
     return events;
   }
 
-  private async handleEvent(event: OrderedIndexerEvent): Promise<void> {
+  private async handleEvent(
+    event: OrderedIndexerEvent,
+    timestamp: number,
+  ): Promise<void> {
     switch (event.kind) {
       case 'BountyCreated':
-        await this.handleBountyCreated(event);
+        await this.handleBountyCreated(event, timestamp);
         return;
       case 'WorkSubmitted':
-        await this.handleWorkSubmitted(event);
+        await this.handleWorkSubmitted(event, timestamp);
         return;
       case 'WinnerAwarded':
-        await this.handleWinnerAwarded(event);
+        await this.handleWinnerAwarded(event, timestamp);
         return;
       case 'RewardClaimed':
-        await this.handleRewardClaimed(event);
+        await this.handleRewardClaimed(event, timestamp);
         return;
       case 'BountyRefunded':
-        await this.handleBountyRefunded(event);
+        await this.handleBountyRefunded(event, timestamp);
         return;
       case 'SubmissionSelected':
-        await this.handleSubmissionSelected(event);
+        await this.handleSubmissionSelected(event, timestamp);
     }
   }
 
   private async handleBountyCreated(
     event: Extract<OrderedIndexerEvent, { kind: 'BountyCreated' }>,
+    timestamp: number,
   ): Promise<void> {
     const factory = await this.loadFactoryConfig();
     const escrowAddress = event.escrow.toLowerCase();
@@ -430,6 +461,16 @@ export class IndexerSyncService {
       { upsert: true },
     );
 
+    await this.appendActivity({
+      type: 'BountyCreated',
+      bounty: escrowAddress,
+      actor: event.creator.toLowerCase(),
+      txHash: event.transactionHash.toLowerCase(),
+      timestamp,
+      blockNumber: event.blockNumber,
+      logIndex: event.logIndex,
+    });
+
     this.logger.log(
       `Indexed BountyCreated escrow=${escrowAddress} block=${event.blockNumber}`,
     );
@@ -437,6 +478,7 @@ export class IndexerSyncService {
 
   private async handleWorkSubmitted(
     event: Extract<OrderedIndexerEvent, { kind: 'WorkSubmitted' }>,
+    timestamp: number,
   ): Promise<void> {
     const submissionId = Number(event.submissionId);
 
@@ -454,6 +496,17 @@ export class IndexerSyncService {
       { upsert: true },
     );
 
+    await this.appendActivity({
+      type: 'WorkSubmitted',
+      bounty: event.bountyAddress.toLowerCase(),
+      actor: event.submitter.toLowerCase(),
+      txHash: event.transactionHash.toLowerCase(),
+      timestamp,
+      submissionId,
+      blockNumber: event.blockNumber,
+      logIndex: event.logIndex,
+    });
+
     this.logger.log(
       `Indexed WorkSubmitted id=${submissionId} block=${event.blockNumber}`,
     );
@@ -461,6 +514,7 @@ export class IndexerSyncService {
 
   private async handleWinnerAwarded(
     event: Extract<OrderedIndexerEvent, { kind: 'WinnerAwarded' }>,
+    timestamp: number,
   ): Promise<void> {
     const escrowAddress = event.escrow.toLowerCase();
     const result = await this.bountyModel.updateOne(
@@ -482,6 +536,17 @@ export class IndexerSyncService {
       return;
     }
 
+    await this.appendActivity({
+      type: 'WinnerAwarded',
+      bounty: escrowAddress,
+      actor: event.winner.toLowerCase(),
+      txHash: event.transactionHash.toLowerCase(),
+      timestamp,
+      submissionId: Number(event.submissionId),
+      blockNumber: event.blockNumber,
+      logIndex: event.logIndex,
+    });
+
     this.logger.log(
       `Indexed WinnerAwarded escrow=${escrowAddress} block=${event.blockNumber}`,
     );
@@ -489,6 +554,7 @@ export class IndexerSyncService {
 
   private async handleRewardClaimed(
     event: Extract<OrderedIndexerEvent, { kind: 'RewardClaimed' }>,
+    timestamp: number,
   ): Promise<void> {
     const escrowAddress = event.escrow.toLowerCase();
     const result = await this.bountyModel.updateOne(
@@ -508,6 +574,16 @@ export class IndexerSyncService {
       return;
     }
 
+    await this.appendActivity({
+      type: 'RewardClaimed',
+      bounty: escrowAddress,
+      actor: event.winner.toLowerCase(),
+      txHash: event.transactionHash.toLowerCase(),
+      timestamp,
+      blockNumber: event.blockNumber,
+      logIndex: event.logIndex,
+    });
+
     this.logger.log(
       `Indexed RewardClaimed escrow=${escrowAddress} block=${event.blockNumber}`,
     );
@@ -515,6 +591,7 @@ export class IndexerSyncService {
 
   private async handleBountyRefunded(
     event: Extract<OrderedIndexerEvent, { kind: 'BountyRefunded' }>,
+    timestamp: number,
   ): Promise<void> {
     const escrowAddress = event.escrow.toLowerCase();
     const result = await this.bountyModel.updateOne(
@@ -534,6 +611,16 @@ export class IndexerSyncService {
       return;
     }
 
+    await this.appendActivity({
+      type: 'BountyRefunded',
+      bounty: escrowAddress,
+      actor: event.creator.toLowerCase(),
+      txHash: event.transactionHash.toLowerCase(),
+      timestamp,
+      blockNumber: event.blockNumber,
+      logIndex: event.logIndex,
+    });
+
     this.logger.log(
       `Indexed BountyRefunded escrow=${escrowAddress} block=${event.blockNumber}`,
     );
@@ -541,6 +628,7 @@ export class IndexerSyncService {
 
   private async handleSubmissionSelected(
     event: Extract<OrderedIndexerEvent, { kind: 'SubmissionSelected' }>,
+    timestamp: number,
   ): Promise<void> {
     const submissionId = Number(event.submissionId);
     const result = await this.submissionModel.updateOne(
@@ -559,9 +647,58 @@ export class IndexerSyncService {
       return;
     }
 
+    await this.appendActivity({
+      type: 'SubmissionSelected',
+      bounty: event.bountyAddress.toLowerCase(),
+      actor: event.submitter.toLowerCase(),
+      txHash: event.transactionHash.toLowerCase(),
+      timestamp,
+      submissionId,
+      blockNumber: event.blockNumber,
+      logIndex: event.logIndex,
+    });
+
     this.logger.log(
       `Indexed SubmissionSelected id=${submissionId} block=${event.blockNumber}`,
     );
+  }
+
+  private async loadBlockTimestamps(
+    events: OrderedIndexerEvent[],
+  ): Promise<Map<number, number>> {
+    const blockNumbers = [...new Set(events.map((event) => event.blockNumber))];
+    const pairs = await Promise.all(
+      blockNumbers.map(async (blockNumber) => {
+        const block = await this.blockchain.publicClient.getBlock({
+          blockNumber: BigInt(blockNumber),
+        });
+        return [blockNumber, Number(block.timestamp)] as const;
+      }),
+    );
+    return new Map(pairs);
+  }
+
+  private async appendActivity(record: {
+    type: ActivityEventType;
+    bounty: string;
+    actor: string;
+    txHash: string;
+    timestamp: number;
+    submissionId?: number;
+    blockNumber: number;
+    logIndex: number;
+  }): Promise<void> {
+    try {
+      await this.activityModel.create(record);
+    } catch (error) {
+      if (isDuplicateKeyError(error)) {
+        this.logger.warn(
+          `Activity already indexed type=${record.type} block=${record.blockNumber} logIndex=${record.logIndex}`,
+        );
+        return;
+      }
+      throw error;
+    }
   }
 
   private async loadFactoryConfig(): Promise<FactoryConfig> {
@@ -599,4 +736,13 @@ export class IndexerSyncService {
     this.factoryConfig = config;
     return config;
   }
+}
+
+function isDuplicateKeyError(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code: unknown }).code === 11000
+  );
 }
