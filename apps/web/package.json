@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@bounty/types": "workspace:*",
     "@bounty/ui": "workspace:*",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
@@ -25,7 +26,6 @@
     "wagmi": "^3.6.16"
   },
   "devDependencies": {
-    "@bounty/types": "workspace:*",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

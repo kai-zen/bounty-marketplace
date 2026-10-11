@@ -17,8 +17,9 @@ export type BountyCardProps = {
 
 function formatRewardEth(rewardWei: WeiAmount): string {
   const value = BigInt(rewardWei);
-  const whole = value / 10n ** 18n;
-  const fraction = value % 10n ** 18n;
+  const weiPerEth = BigInt(10) ** BigInt(18);
+  const whole = value / weiPerEth;
+  const fraction = value % weiPerEth;
   const fractionDigits = fraction.toString().padStart(18, "0").replace(/0+$/, "");
   const amount = fractionDigits ? `${whole}.${fractionDigits}` : whole.toString();
   return `${amount} ETH`;
