@@ -8,14 +8,14 @@
  * useReadContract({ address: factory, abi: bountyFactoryAbi, functionName: "bountyCount" });
  * ```
  */
-import type { Address } from "./index.js";
+import type { Address } from "./index";
 
 import localDeploymentJson from "../contracts/deployments/31337.json" with { type: "json" };
 
 export type { Address };
-export { bountyFactoryAbi } from "../contracts/abis/BountyFactory.js";
-export { bountyEscrowAbi } from "../contracts/abis/BountyEscrow.js";
-export { submissionRegistryAbi } from "../contracts/abis/SubmissionRegistry.js";
+export { bountyFactoryAbi } from "../contracts/abis/BountyFactory";
+export { bountyEscrowAbi } from "../contracts/abis/BountyEscrow";
+export { submissionRegistryAbi } from "../contracts/abis/SubmissionRegistry";
 
 /**
  * `packages/contracts/deployments/<chainId>.json`.

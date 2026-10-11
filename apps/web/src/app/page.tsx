@@ -1,4 +1,5 @@
 import { ExploreBounties } from "@/components/ExploreBounties";
+import { ExploreCreatedPoll } from "@/components/ExploreCreatedPoll";
 import { PageHeader } from "@bounty/ui";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -24,13 +25,20 @@ function ExploreLoading() {
   );
 }
 
-export default function Home() {
+type HomeProps = {
+  searchParams: Promise<{ created?: string }>;
+};
+
+export default async function Home({ searchParams }: HomeProps) {
+  const { created } = await searchParams;
+
   return (
     <>
       <PageHeader
         title="Explore"
         subtitle="Browse indexed bounties from the marketplace."
       />
+      {created ? <ExploreCreatedPoll escrow={created} /> : null}
       <Suspense fallback={<ExploreLoading />}>
         <ExploreBounties />
       </Suspense>
