@@ -1,6 +1,7 @@
 import { ApiError, fetchBounties } from "@/lib/api";
 import { BountyCard, EmptyState } from "@bounty/ui";
 import Box from "@mui/material/Box";
+import { CreateBountyCta } from "./CreateBountyCta";
 import { ExploreError } from "./ExploreError";
 
 const EXPLORE_PAGE_SIZE = 24;
@@ -28,7 +29,8 @@ export async function ExploreBounties() {
     return (
       <EmptyState
         title="No bounties yet"
-        message="Indexed bounties will appear here after they are created on-chain."
+        message="Publish the first listing and it will show up here after the indexer picks it up."
+        action={<CreateBountyCta />}
       />
     );
   }
@@ -37,7 +39,7 @@ export async function ExploreBounties() {
     <Box
       sx={{
         display: "grid",
-        gap: 2,
+        gap: 2.5,
         gridTemplateColumns: {
           xs: "1fr",
           sm: "repeat(2, 1fr)",

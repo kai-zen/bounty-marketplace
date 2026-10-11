@@ -18,16 +18,16 @@ export function PageHeader({ title, subtitle, actions }: PageHeaderProps) {
         flexDirection: { xs: "column", sm: "row" },
         alignItems: { xs: "stretch", sm: "flex-start" },
         justifyContent: "space-between",
-        gap: 2,
-        mb: 3,
+        gap: 2.5,
+        mb: { xs: 3.5, md: 4.5 },
       }}
     >
-      <Box>
-        <Typography component="h1" variant="h4" gutterBottom={Boolean(subtitle)}>
+      <Box sx={{ maxWidth: 640 }}>
+        <Typography component="h1" variant="h4" sx={{ mb: subtitle ? 1 : 0 }}>
           {title}
         </Typography>
         {subtitle ? (
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 52 * 8 }}>
             {subtitle}
           </Typography>
         ) : null}
@@ -39,6 +39,7 @@ export function PageHeader({ title, subtitle, actions }: PageHeaderProps) {
             flexDirection: "row",
             flexWrap: "wrap",
             gap: 1,
+            pt: { sm: 0.5 },
           }}
         >
           {actions}

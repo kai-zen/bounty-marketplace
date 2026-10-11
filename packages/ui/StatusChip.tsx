@@ -60,7 +60,8 @@ export function StatusChip(props: StatusChipProps) {
       label={presentation.label}
       color={presentation.color}
       size={size}
-      variant="filled"
+      variant={presentation.color === "default" ? "outlined" : "filled"}
+      sx={{ flexShrink: 0 }}
     />
   );
 }

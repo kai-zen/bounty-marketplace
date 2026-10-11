@@ -38,7 +38,7 @@ export function ExploreCreatedPoll({ escrow }: ExploreCreatedPollProps) {
   }
 
   return (
-    <Alert severity="info" sx={{ mb: 2 }}>
+    <Alert severity="info" sx={{ mb: 3 }}>
       Waiting for the indexer to list the new bounty…
     </Alert>
   );

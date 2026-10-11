@@ -10,8 +10,8 @@ export default function CreatePage() {
   return (
     <>
       <PageHeader
-        title="Create bounty"
-        subtitle="Save metadata, then fund an escrow with factory.createBounty."
+        title="Fund a bounty"
+        subtitle="Write the brief, lock a reward, and publish it on-chain. The escrow holds the funds until you award a winner."
       />
       <CreateBountyForm />
     </>

@@ -37,6 +37,27 @@ function isNavItemActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+function NavButton({ item, active }: { item: AppShellNavItem; active: boolean }) {
+  return (
+    <Button
+      component={Link}
+      href={item.href}
+      color="inherit"
+      sx={{
+        px: 1.5,
+        color: active ? "text.primary" : "text.secondary",
+        bgcolor: active ? "action.selected" : "transparent",
+        fontWeight: active ? 700 : 560,
+        "&:hover": {
+          bgcolor: active ? "action.selected" : "action.hover",
+        },
+      }}
+    >
+      {item.label}
+    </Button>
+  );
+}
+
 /** Root layout chrome: top app bar, primary nav, and main content area. */
 export function AppShell({
   children,
@@ -48,49 +69,117 @@ export function AppShell({
   const pathname = usePathname();
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <AppBar position="sticky" color="primary" enableColorOnDark>
-        <Toolbar sx={{ gap: 2 }}>
-          <Typography
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        background:
+          "radial-gradient(1200px 420px at 50% -80px, rgba(31, 77, 58, 0.08), transparent 70%)",
+      }}
+    >
+      <AppBar position="sticky">
+        <Toolbar
+          sx={{
+            gap: { xs: 1, md: 2 },
+            minHeight: { xs: 56, sm: 72 },
+            px: { xs: 1.5, md: 3 },
+            py: { xs: 1, sm: 0 },
+            flexWrap: { xs: "wrap", sm: "nowrap" },
+          }}
+        >
+          <Box
             component={Link}
             href={brandHref}
-            variant="h6"
             sx={{
-              color: "inherit",
+              display: "flex",
+              alignItems: "center",
+              gap: 1.25,
+              color: "text.primary",
               textDecoration: "none",
-              fontWeight: 700,
-              mr: 1,
+              mr: { xs: 0, md: 1 },
+              flexShrink: 0,
             }}
           >
-            {brandTitle}
-          </Typography>
-          <Box sx={{ display: "flex", gap: 0.5, flexGrow: 1 }}>
-            {navItems.map((item) => {
-              const active = isNavItemActive(pathname, item.href);
-              return (
-                <Button
-                  key={item.href}
-                  component={Link}
-                  href={item.href}
-                  color="inherit"
-                  variant={active ? "outlined" : "text"}
-                  sx={{
-                    borderColor: active ? "rgba(255,255,255,0.5)" : "transparent",
-                  }}
-                >
-                  {item.label}
-                </Button>
-              );
-            })}
+            <Box
+              aria-hidden
+              sx={{
+                width: 30,
+                height: 30,
+                borderRadius: 1.5,
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+                display: "grid",
+                placeItems: "center",
+                fontSize: 14,
+                fontWeight: 700,
+                letterSpacing: "-0.06em",
+              }}
+            >
+              B
+            </Box>
+            <Typography
+              variant="h6"
+              sx={{
+                fontSize: { xs: "0.95rem", sm: "1.05rem" },
+                display: { xs: "none", sm: "block" },
+              }}
+            >
+              {brandTitle}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: { xs: "none", sm: "flex" },
+              gap: 0.25,
+              flexGrow: 1,
+              minWidth: 0,
+            }}
+          >
+            {navItems.map((item) => (
+              <NavButton
+                key={item.href}
+                item={item}
+                active={isNavItemActive(pathname, item.href)}
+              />
+            ))}
           </Box>
           {headerActions ? (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                flexShrink: 0,
+                ml: "auto",
+              }}
+            >
               {headerActions}
             </Box>
           ) : null}
+          <Box
+            sx={{
+              display: { xs: "flex", sm: "none" },
+              gap: 0.25,
+              width: "100%",
+              pb: 0.5,
+            }}
+          >
+            {navItems.map((item) => (
+              <NavButton
+                key={item.href}
+                item={item}
+                active={isNavItemActive(pathname, item.href)}
+              />
+            ))}
+          </Box>
         </Toolbar>
       </AppBar>
-      <Container component="main" maxWidth="lg" sx={{ flex: 1, py: 3 }}>
+      <Container
+        component="main"
+        maxWidth="lg"
+        sx={{ flex: 1, py: { xs: 4, md: 6 }, px: { xs: 2, sm: 3 } }}
+      >
         {children}
       </Container>
     </Box>

@@ -9,11 +9,12 @@ import { bountyFactoryAbi } from "@bounty/types/contracts";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { parseEther, parseEventLogs } from "viem";
 import {
   useChainId,
@@ -24,15 +25,13 @@ import {
 import { waitForTransactionReceipt } from "wagmi/actions";
 
 type FieldErrors = Partial<
-  Record<"title" | "description" | "reward" | "deadline" | "tags" | "links", string>
+  Record<
+    "title" | "description" | "reward" | "deadline" | "tags" | "links",
+    string
+  >
 >;
 
-type SubmitPhase =
-  | "idle"
-  | "metadata"
-  | "wallet"
-  | "confirming"
-  | "indexing";
+type SubmitPhase = "idle" | "metadata" | "wallet" | "confirming" | "indexing";
 
 function defaultDeadlineLocal(): string {
   const date = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -70,7 +69,13 @@ function validateForm(input: {
   deadline: string;
   tags: string;
   links: string;
-}): { errors: FieldErrors; deadlineUnix?: number; rewardWei?: bigint; tags: string[]; links: string[] } {
+}): {
+  errors: FieldErrors;
+  deadlineUnix?: number;
+  rewardWei?: bigint;
+  tags: string[];
+  links: string[];
+} {
   const errors: FieldErrors = {};
   const title = input.title.trim();
   const description = input.description.trim();
@@ -157,22 +162,16 @@ export function CreateBountyForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [reward, setReward] = useState("0.1");
-  const [deadline, setDeadline] = useState("");
+  const [deadline, setDeadline] = useState(defaultDeadlineLocal());
   const [tags, setTags] = useState("");
   const [links, setLinks] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [phase, setPhase] = useState<SubmitPhase>("idle");
   const [formError, setFormError] = useState<string | null>(null);
-  const [ready, setReady] = useState(false);
 
-  const wrongChain = ready && isConnected && chainId !== defaultChainId;
+  const wrongChain = isConnected && chainId !== defaultChainId;
   const busy = phase !== "idle";
   const canSubmit = !wrongChain && !busy;
-
-  useEffect(() => {
-    setDeadline(defaultDeadlineLocal());
-    setReady(true);
-  }, []);
 
   const factoryAddress = useMemo(() => {
     try {
@@ -208,11 +207,15 @@ export function CreateBountyForm() {
       return;
     }
     if (wrongChain) {
-      setFormError(`Switch to chain ${defaultChainId} before creating a bounty.`);
+      setFormError(
+        `Switch to chain ${defaultChainId} before creating a bounty.`,
+      );
       return;
     }
     if (!factoryAddress) {
-      setFormError("Factory address is not configured. Check NEXT_PUBLIC_FACTORY_ADDRESS.");
+      setFormError(
+        "Factory address is not configured. Check NEXT_PUBLIC_FACTORY_ADDRESS.",
+      );
       return;
     }
 
@@ -244,7 +247,9 @@ export function CreateBountyForm() {
       })[0];
       const escrow = created?.args.escrow;
       if (!escrow) {
-        throw new Error("Transaction confirmed, but BountyCreated was not found.");
+        throw new Error(
+          "Transaction confirmed, but BountyCreated was not found.",
+        );
       }
 
       setPhase("indexing");
@@ -257,15 +262,18 @@ export function CreateBountyForm() {
   }
 
   return (
-    <Box
+    <Paper
       component="form"
+      variant="outlined"
       onSubmit={(event) => void onSubmit(event)}
       noValidate
-      sx={{ maxWidth: 640 }}
+      sx={{ maxWidth: 720, p: { xs: 2.5, md: 4 } }}
     >
-      <Stack spacing={2.5}>
-        {ready && !isConnected ? (
-          <Alert severity="info">Connect a wallet to fund and publish a bounty.</Alert>
+      <Stack spacing={3}>
+        {!isConnected ? (
+          <Alert severity="info">
+            Connect a wallet to fund and publish a bounty.
+          </Alert>
         ) : null}
         {wrongChain ? (
           <Alert
@@ -286,68 +294,118 @@ export function CreateBountyForm() {
         ) : null}
         {formError ? <Alert severity="error">{formError}</Alert> : null}
 
-        <TextField
-          label="Title"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          error={Boolean(fieldErrors.title)}
-          helperText={fieldErrors.title}
-          required
-          fullWidth
-        />
-        <TextField
-          label="Description"
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-          error={Boolean(fieldErrors.description)}
-          helperText={fieldErrors.description}
-          required
-          fullWidth
-          multiline
-          minRows={4}
-        />
-        <TextField
-          label="Reward (ETH)"
-          value={reward}
-          onChange={(event) => setReward(event.target.value)}
-          error={Boolean(fieldErrors.reward)}
-          helperText={fieldErrors.reward ?? "Sent as msg.value to factory.createBounty."}
-          required
-          fullWidth
-          inputMode="decimal"
-        />
-        <TextField
-          label="Deadline"
-          type="datetime-local"
-          value={deadline}
-          onChange={(event) => setDeadline(event.target.value)}
-          error={Boolean(fieldErrors.deadline)}
-          helperText={fieldErrors.deadline}
-          required
-          fullWidth
-          slotProps={{ inputLabel: { shrink: true } }}
-        />
-        <TextField
-          label="Tags"
-          value={tags}
-          onChange={(event) => setTags(event.target.value)}
-          error={Boolean(fieldErrors.tags)}
-          helperText={fieldErrors.tags ?? "Optional. Comma-separated."}
-          fullWidth
-        />
-        <TextField
-          label="Links"
-          value={links}
-          onChange={(event) => setLinks(event.target.value)}
-          error={Boolean(fieldErrors.links)}
-          helperText={fieldErrors.links ?? "Optional. One URL per line."}
-          fullWidth
-          multiline
-          minRows={2}
-        />
+        <Box>
+          <Typography
+            variant="overline"
+            color="text.secondary"
+            sx={{ display: "block", mb: 1.5 }}
+          >
+            Brief
+          </Typography>
+          <Stack spacing={2.5}>
+            <TextField
+              label="Title"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              error={Boolean(fieldErrors.title)}
+              helperText={fieldErrors.title}
+              required
+              fullWidth
+            />
+            <TextField
+              label="Description"
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              error={Boolean(fieldErrors.description)}
+              helperText={fieldErrors.description}
+              required
+              fullWidth
+              multiline
+              minRows={4}
+            />
+          </Stack>
+        </Box>
 
         <Box>
-          <Button type="submit" variant="contained" disabled={!canSubmit}>
+          <Typography
+            variant="overline"
+            color="text.secondary"
+            sx={{ display: "block", mb: 1.5 }}
+          >
+            Reward
+          </Typography>
+          <Box
+            sx={{
+              display: "grid",
+              gap: 2.5,
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+            }}
+          >
+            <TextField
+              label="Reward (ETH)"
+              value={reward}
+              onChange={(event) => setReward(event.target.value)}
+              error={Boolean(fieldErrors.reward)}
+              helperText={
+                fieldErrors.reward ?? "Locked in escrow when you publish."
+              }
+              required
+              fullWidth
+              inputMode="decimal"
+            />
+            <TextField
+              label="Deadline"
+              type="datetime-local"
+              value={deadline}
+              onChange={(event) => setDeadline(event.target.value)}
+              error={Boolean(fieldErrors.deadline)}
+              helperText={fieldErrors.deadline}
+              required
+              fullWidth
+              slotProps={{ inputLabel: { shrink: true } }}
+            />
+          </Box>
+        </Box>
+
+        <Box>
+          <Typography
+            variant="overline"
+            color="text.secondary"
+            sx={{ display: "block", mb: 1.5 }}
+          >
+            Optional
+          </Typography>
+          <Stack spacing={2.5}>
+            <TextField
+              label="Tags"
+              value={tags}
+              onChange={(event) => setTags(event.target.value)}
+              error={Boolean(fieldErrors.tags)}
+              helperText={
+                fieldErrors.tags ?? "Comma-separated topics, e.g. solidity, ui."
+              }
+              fullWidth
+            />
+            <TextField
+              label="Links"
+              value={links}
+              onChange={(event) => setLinks(event.target.value)}
+              error={Boolean(fieldErrors.links)}
+              helperText={fieldErrors.links ?? "Reference URLs, one per line."}
+              fullWidth
+              multiline
+              minRows={2}
+            />
+          </Stack>
+        </Box>
+
+        <Box>
+          <Button
+            type="submit"
+            variant="contained"
+            size="large"
+            disabled={!canSubmit}
+          >
             {submitLabel(phase)}
           </Button>
           {busy ? (
@@ -359,6 +417,6 @@ export function CreateBountyForm() {
           ) : null}
         </Box>
       </Stack>
-    </Box>
+    </Paper>
   );
 }

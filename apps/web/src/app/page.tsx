@@ -1,3 +1,4 @@
+import { CreateBountyCta } from "@/components/CreateBountyCta";
 import { ExploreBounties } from "@/components/ExploreBounties";
 import { ExploreCreatedPoll } from "@/components/ExploreCreatedPoll";
 import { PageHeader } from "@bounty/ui";
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 function ExploreLoading() {
   return (
     <Box
-      sx={{ display: "flex", justifyContent: "center", py: 8 }}
+      sx={{ display: "flex", justifyContent: "center", py: 10 }}
       role="status"
       aria-live="polite"
       aria-label="Loading bounties"
@@ -35,8 +36,9 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <>
       <PageHeader
-        title="Explore"
-        subtitle="Browse indexed bounties from the marketplace."
+        title="Explore bounties"
+        subtitle="Open work with escrowed rewards. Pick a listing to read the brief and submit."
+        actions={<CreateBountyCta />}
       />
       {created ? <ExploreCreatedPoll escrow={created} /> : null}
       <Suspense fallback={<ExploreLoading />}>
