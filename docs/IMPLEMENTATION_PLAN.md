@@ -411,7 +411,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 13 — Local dev runbook
 - [x] Step 14 — API config validation
 - [x] Step 15 — Mongoose + health
-- [ ] Step 16 — API prefix + CORS
+- [x] Step 16 — API prefix + CORS
 - [ ] Step 17 — Metadata POST
 - [ ] Step 18 — Metadata GET
 - [ ] Step 19 — BlockchainModule viem

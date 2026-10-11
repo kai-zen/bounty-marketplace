@@ -2,7 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from '../src/app.module';
+import { AppModule } from 'src/app.module';
+import { API_GLOBAL_PREFIX, configureApp } from 'src/main';
 
 describe('Health (e2e)', () => {
   let app: INestApplication<App>;
@@ -13,6 +14,7 @@ describe('Health (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    configureApp(app);
     await app.init();
   });
 
@@ -20,9 +22,9 @@ describe('Health (e2e)', () => {
     await app.close();
   });
 
-  it('/health (GET)', () => {
+  it(`/${API_GLOBAL_PREFIX}/health (GET)`, () => {
     return request(app.getHttpServer())
-      .get('/health')
+      .get(`/${API_GLOBAL_PREFIX}/health`)
       .expect(200)
       .expect((res) => {
         expect(res.body).toMatchObject({
@@ -30,5 +32,13 @@ describe('Health (e2e)', () => {
           details: { mongodb: { status: 'up' } },
         });
       });
+  });
+
+  it('allows CORS from the Next.js dev origin', () => {
+    return request(app.getHttpServer())
+      .get(`/${API_GLOBAL_PREFIX}/health`)
+      .set('Origin', 'http://localhost:3000')
+      .expect(200)
+      .expect('Access-Control-Allow-Origin', 'http://localhost:3000');
   });
 });
