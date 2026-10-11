@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
+import { BlockchainService } from '../src/blockchain/blockchain.service';
 import { API_GLOBAL_PREFIX, configureApp } from '../src/configure-app';
 
 describe('Health (e2e)', () => {
@@ -11,7 +12,13 @@ describe('Health (e2e)', () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(BlockchainService)
+      .useValue({
+        getBlockNumber: jest.fn().mockResolvedValue(1n),
+        onModuleInit: jest.fn(),
+      })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     configureApp(app);
@@ -29,7 +36,10 @@ describe('Health (e2e)', () => {
       .expect((res) => {
         expect(res.body).toMatchObject({
           status: 'ok',
-          details: { mongodb: { status: 'up' } },
+          details: {
+            mongodb: { status: 'up' },
+            blockchain: { status: 'up' },
+          },
         });
       });
   });

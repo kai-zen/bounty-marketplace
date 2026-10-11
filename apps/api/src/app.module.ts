@@ -6,6 +6,7 @@ import {
   envValidationOptions,
   envValidationSchema,
 } from './config/env.validation';
+import { BlockchainModule } from './blockchain/blockchain.module';
 import { HealthModule } from './health/health.module';
 import { MetadataModule } from './metadata/metadata.module';
 
@@ -23,6 +24,7 @@ import { MetadataModule } from './metadata/metadata.module';
         uri: config.get('MONGODB_URI', { infer: true }),
       }),
     }),
+    BlockchainModule,
     HealthModule,
     MetadataModule,
   ],

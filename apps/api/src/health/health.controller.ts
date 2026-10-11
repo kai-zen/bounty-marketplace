@@ -6,6 +6,7 @@ import {
   HealthIndicatorService,
 } from '@nestjs/terminus';
 import { Connection } from 'mongoose';
+import { BlockchainService } from '../blockchain/blockchain.service';
 
 @Controller('health')
 export class HealthController {
@@ -13,12 +14,16 @@ export class HealthController {
     private readonly health: HealthCheckService,
     private readonly indicators: HealthIndicatorService,
     @InjectConnection() private readonly connection: Connection,
+    private readonly blockchain: BlockchainService,
   ) {}
 
   @Get()
   @HealthCheck()
   check() {
-    return this.health.check([() => this.pingMongo()]);
+    return this.health.check([
+      () => this.pingMongo(),
+      () => this.pingBlockchain(),
+    ]);
   }
 
   private async pingMongo() {
@@ -34,6 +39,18 @@ export class HealthController {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'MongoDB ping failed';
+      return check.down(message);
+    }
+  }
+
+  private async pingBlockchain() {
+    const check = this.indicators.check('blockchain');
+    try {
+      await this.blockchain.getBlockNumber();
+      return check.up();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'RPC getBlockNumber failed';
       return check.down(message);
     }
   }

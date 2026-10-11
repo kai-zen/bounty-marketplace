@@ -414,7 +414,7 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 16 — API prefix + CORS
 - [x] Step 17 — Metadata POST
 - [x] Step 18 — Metadata GET
-- [ ] Step 19 — BlockchainModule viem
+- [x] Step 19 — BlockchainModule viem
 - [ ] Step 20 — Bounty/Submission schemas
 - [ ] Step 21 — Indexer skeleton + cursor
 - [ ] Step 22 — Index create + submit events

@@ -3,9 +3,9 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { BountyMetadata, METADATA_VERSION } from '@bounty/types';
-import { AppModule } from 'src/app.module';
-import { API_GLOBAL_PREFIX, configureApp } from 'src/configure-app';
-import type { CreateMetadataResult } from 'src/metadata/metadata.service';
+import { AppModule } from '../src/app.module';
+import { API_GLOBAL_PREFIX, configureApp } from '../src/configure-app';
+import type { CreateMetadataResult } from '../src/metadata/metadata.service';
 
 const metadataUriPattern =
   /^http:\/\/localhost:3001\/api\/v1\/metadata\/[0-9a-f-]{36}$/;
