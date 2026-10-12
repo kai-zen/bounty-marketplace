@@ -85,6 +85,38 @@ export function claimDisabledReason(input: ClaimGateInput): string | null {
   return null;
 }
 
+export type RefundGateInput = {
+  status: BountyStatus;
+  deadlinePassed: boolean;
+  isConnected: boolean;
+  wrongChain: boolean;
+  isCreator: boolean;
+  expectedChainId: number;
+};
+
+/**
+ * Why `refundExpired` must stay disabled.
+ * Status, deadline, then role — matching `BountyEscrow.refundExpired`.
+ */
+export function refundDisabledReason(input: RefundGateInput): string | null {
+  if (input.status !== BountyStatus.Open) {
+    return "This bounty is no longer open.";
+  }
+  if (!input.deadlinePassed) {
+    return "The deadline has not passed yet.";
+  }
+  if (!input.isConnected) {
+    return "Connect the creator wallet to refund the escrow.";
+  }
+  if (!input.isCreator) {
+    return "Only the bounty creator can refund after the deadline.";
+  }
+  if (input.wrongChain) {
+    return `Switch to chain ${input.expectedChainId} before refunding.`;
+  }
+  return null;
+}
+
 /** Winner share after the platform fee, in wei. Matches `BountyEscrow.claimReward`. */
 export function winnerPayoutWei(
   rewardWei: string,

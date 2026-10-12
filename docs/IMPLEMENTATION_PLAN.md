@@ -434,6 +434,6 @@ Use this checklist when committing; mark `[x]` as you go.
 - [x] Step 36 — Bounty detail read-only
 - [x] Step 37 — Submit work flow
 - [x] Step 38 — Award and claim
-- [ ] Step 39 — Refund and dashboard
+- [x] Step 39 — Refund and dashboard
 - [ ] Step 40 — API e2e tests
 - [ ] Step 41 — GitHub Actions CI

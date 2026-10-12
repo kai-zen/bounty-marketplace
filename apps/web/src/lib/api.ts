@@ -40,6 +40,7 @@ export type MetadataCreateResponse = {
 export type ListBountiesParams = PageParams & {
   status?: BountyStatus;
   search?: string;
+  creator?: Address;
 };
 
 export type ListActivityParams = {
@@ -127,6 +128,7 @@ export async function fetchBounties(
       limit: params.limit,
       status: params.status,
       search: params.search,
+      creator: params.creator?.toLowerCase(),
     })}`,
   );
 }

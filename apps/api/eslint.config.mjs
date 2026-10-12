@@ -9,7 +9,7 @@ import { defineConfig } from 'eslint/config'; // ESLint v9+
 
 export default defineConfig(
   {
-    ignores: ['eslint.config.mjs'],
+    ignores: ['eslint.config.mjs', 'json-import-loader.mjs'],
   },
   eslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,

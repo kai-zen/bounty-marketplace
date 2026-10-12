@@ -46,6 +46,24 @@ describe('bounties query validation', () => {
     expect(() => parseListBountiesQuery({ status: '9' })).toThrow(/status/);
   });
 
+  it('normalizes a checksummed creator filter', () => {
+    expect(
+      parseListBountiesQuery({
+        creator: '0x1234567890AbCdEf1234567890aBcDeF12345678',
+      }),
+    ).toEqual({
+      page: DEFAULT_BOUNTY_PAGE,
+      limit: DEFAULT_BOUNTY_LIMIT,
+      creator: '0x1234567890abcdef1234567890abcdef12345678',
+    });
+  });
+
+  it('rejects a non-address creator filter', () => {
+    expect(() => parseListBountiesQuery({ creator: 'not-an-address' })).toThrow(
+      /creator/,
+    );
+  });
+
   it('normalizes a checksummed escrow address', () => {
     expect(
       parseEscrowAddress('0x1234567890AbCdEf1234567890aBcDeF12345678'),

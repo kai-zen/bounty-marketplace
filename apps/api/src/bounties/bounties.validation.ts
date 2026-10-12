@@ -19,6 +19,7 @@ export interface ListBountiesQuery {
   limit: number;
   status?: BountyStatus;
   search?: string;
+  creator?: Address;
 }
 
 export const listBountiesQuerySchema = Joi.object<ListBountiesQuery>({
@@ -33,6 +34,14 @@ export const listBountiesQuerySchema = Joi.object<ListBountiesQuery>({
     .valid(...BOUNTY_STATUSES)
     .optional(),
   search: Joi.string().trim().max(200).empty('').optional(),
+  creator: Joi.string()
+    .pattern(ADDRESS_PATTERN)
+    .custom((value: string) => value.toLowerCase())
+    .messages({
+      'string.pattern.base': 'Invalid creator address',
+      'string.empty': 'Invalid creator address',
+    })
+    .optional(),
 });
 
 export function parseListBountiesQuery(query: unknown): ListBountiesQuery {

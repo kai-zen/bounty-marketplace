@@ -1,5 +1,9 @@
-import { AwardWinnerButton, AwardWinnerScope } from "@/components/AwardWinnerButton";
+import {
+  AwardWinnerButton,
+  AwardWinnerScope,
+} from "@/components/AwardWinnerButton";
 import { ClaimRewardPanel } from "@/components/ClaimRewardPanel";
+import { RefundExpiredPanel } from "@/components/RefundExpiredPanel";
 import { SubmitWorkForm } from "@/components/SubmitWorkForm";
 import { formatAddress } from "@/lib/formatAddress";
 import {
@@ -487,6 +491,10 @@ function ActivitySection({ data }: { data: BountyDetailData }) {
 
 /** Bounty detail: brief, escrow facts, submit, award, claim, and activity. */
 export function BountyDetailView({ data }: { data: BountyDetailData }) {
+  const now = new Date().getTime();
+  const deadlinePassed = data.bounty.deadline * 1000 <= now;
+  const showRefund = data.bounty.status === BountyStatus.Open && deadlinePassed;
+
   return (
     <>
       <Button
@@ -531,6 +539,14 @@ export function BountyDetailView({ data }: { data: BountyDetailData }) {
               winner={data.bounty.winner}
               reward={data.bounty.reward}
               platformFeeBps={data.bounty.platformFeeBps}
+            />
+          ) : null}
+          {showRefund ? (
+            <RefundExpiredPanel
+              escrowAddress={data.bounty.escrowAddress}
+              creator={data.bounty.creator}
+              reward={data.bounty.reward}
+              deadline={data.bounty.deadline}
             />
           ) : null}
           <DetailsSection data={data} />

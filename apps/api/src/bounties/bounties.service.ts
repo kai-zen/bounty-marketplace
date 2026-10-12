@@ -35,13 +35,17 @@ export class BountiesService {
       throw new BadRequestException(message);
     }
 
-    const { page, limit, status, search } = parsed;
+    const { page, limit, status, search, creator } = parsed;
     const filter: {
       status?: typeof status;
+      creator?: Address;
       searchText?: { $regex: string; $options: 'i' };
     } = {};
     if (status !== undefined) {
       filter.status = status;
+    }
+    if (creator !== undefined) {
+      filter.creator = creator;
     }
     if (search !== undefined) {
       filter.searchText = { $regex: escapeRegex(search), $options: 'i' };

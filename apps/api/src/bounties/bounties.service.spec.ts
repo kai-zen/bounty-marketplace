@@ -97,6 +97,17 @@ describe('BountiesService', () => {
     });
   });
 
+  it('filters list by creator address', async () => {
+    const { service, bountyModel } = createService({
+      list: [indexedBounty],
+      total: 1,
+    });
+
+    await service.list({ creator });
+
+    expect(bountyModel.find).toHaveBeenCalledWith({ creator });
+  });
+
   it('filters list search against denormalized text', async () => {
     const { service, bountyModel } = createService({
       list: [
