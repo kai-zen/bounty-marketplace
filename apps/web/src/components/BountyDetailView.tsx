@@ -1,3 +1,5 @@
+import { AwardWinnerButton, AwardWinnerScope } from "@/components/AwardWinnerButton";
+import { ClaimRewardPanel } from "@/components/ClaimRewardPanel";
 import { SubmitWorkForm } from "@/components/SubmitWorkForm";
 import { formatAddress } from "@/lib/formatAddress";
 import {
@@ -21,6 +23,7 @@ import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import type { ReactNode } from "react";
 
 const ACTIVITY_LABELS: Record<ActivityEventType, string> = {
   BountyCreated: "Bounty created",
@@ -232,9 +235,11 @@ function DetailsSection({ data }: { data: BountyDetailData }) {
 function SubmissionRow({
   submission,
   awarded,
+  action,
 }: {
   submission: SubmissionSummary;
   awarded: boolean;
+  action?: ReactNode;
 }) {
   const title =
     submission.title.trim() || `Submission #${submission.submissionId}`;
@@ -266,18 +271,29 @@ function SubmissionRow({
           {awarded ? " · Awarded winner" : ""}
         </Typography>
       </Box>
-      <StatusChip kind="submission" status={submission.status} />
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 1,
+          alignItems: "center",
+          justifyContent: { xs: "flex-start", sm: "flex-end" },
+          flexShrink: 0,
+        }}
+      >
+        {action}
+        <StatusChip kind="submission" status={submission.status} />
+      </Box>
     </Paper>
   );
 }
 
 function SubmissionsSection({ data }: { data: BountyDetailData }) {
   const { bounty, submissions } = data;
-  const hidden = Math.max(0, submissions.total - submissions.items.length);
 
   const now = new Date().getTime();
-  const acceptingWork =
-    bounty.status === BountyStatus.Open && bounty.deadline * 1000 > now;
+  const deadlinePassed = bounty.deadline * 1000 <= now;
+  const acceptingWork = bounty.status === BountyStatus.Open && !deadlinePassed;
 
   return (
     <Box component="section" aria-labelledby="bounty-submissions-heading">
@@ -304,27 +320,69 @@ function SubmissionsSection({ data }: { data: BountyDetailData }) {
           }
         />
       ) : (
-        <Stack spacing={1.5}>
-          {submissions.items.map((submission) => (
-            <SubmissionRow
-              key={submission.submissionId}
-              submission={submission}
-              awarded={
-                bounty.winningSubmissionId != null &&
-                submission.submissionId === bounty.winningSubmissionId
-              }
-            />
-          ))}
-          {hidden > 0 ? (
-            <Typography variant="body2" color="text.secondary">
-              Showing {submissions.items.length} of {submissions.total}{" "}
-              submissions.
-            </Typography>
-          ) : null}
-        </Stack>
+        <SubmissionList data={data} deadlinePassed={deadlinePassed} />
       )}
     </Box>
   );
+}
+
+function SubmissionList({
+  data,
+  deadlinePassed,
+}: {
+  data: BountyDetailData;
+  deadlinePassed: boolean;
+}) {
+  const { bounty, submissions } = data;
+  const hidden = Math.max(0, submissions.total - submissions.items.length);
+  const open = bounty.status === BountyStatus.Open;
+
+  const list = (
+    <>
+      {submissions.items.map((submission) => (
+        <SubmissionRow
+          key={submission.submissionId}
+          submission={submission}
+          awarded={
+            bounty.winningSubmissionId != null &&
+            submission.submissionId === bounty.winningSubmissionId
+          }
+          action={
+            open ? (
+              <AwardWinnerButton
+                escrowAddress={bounty.escrowAddress}
+                creator={bounty.creator}
+                deadline={bounty.deadline}
+                deadlinePassed={deadlinePassed}
+                bountyStatus={bounty.status}
+                submissionId={submission.submissionId}
+                submitter={submission.submitter}
+                submissionStatus={submission.status}
+              />
+            ) : null
+          }
+        />
+      ))}
+      {hidden > 0 ? (
+        <Typography variant="body2" color="text.secondary">
+          Showing {submissions.items.length} of {submissions.total} submissions.
+        </Typography>
+      ) : null}
+    </>
+  );
+
+  if (open) {
+    return (
+      <AwardWinnerScope
+        creator={bounty.creator}
+        deadlinePassed={deadlinePassed}
+      >
+        {list}
+      </AwardWinnerScope>
+    );
+  }
+
+  return <Stack spacing={1.5}>{list}</Stack>;
 }
 
 function activityDetail(event: ActivityEvent): string {
@@ -427,7 +485,7 @@ function ActivitySection({ data }: { data: BountyDetailData }) {
   );
 }
 
-/** Bounty detail: brief, escrow facts, submit-work form, submissions, and activity. */
+/** Bounty detail: brief, escrow facts, submit, award, claim, and activity. */
 export function BountyDetailView({ data }: { data: BountyDetailData }) {
   return (
     <>
@@ -467,6 +525,14 @@ export function BountyDetailView({ data }: { data: BountyDetailData }) {
             top: { md: 88 },
           }}
         >
+          {data.bounty.status === BountyStatus.Awarded ? (
+            <ClaimRewardPanel
+              escrowAddress={data.bounty.escrowAddress}
+              winner={data.bounty.winner}
+              reward={data.bounty.reward}
+              platformFeeBps={data.bounty.platformFeeBps}
+            />
+          ) : null}
           <DetailsSection data={data} />
         </Box>
       </Box>
