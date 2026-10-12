@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts:
+    name: Contracts test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Solidity tests
+        run: pnpm --filter contracts test
+
+  build:
+    name: API and web build
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_CHAIN_ID: "31337"
+      NEXT_PUBLIC_RPC_URL: http://127.0.0.1:8545
+      NEXT_PUBLIC_FACTORY_ADDRESS: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+      NEXT_PUBLIC_REGISTRY_ADDRESS: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build API
+        run: pnpm --filter @bounty/api build
+
+      - name: Build web
+        run: pnpm --filter @bounty/web build
